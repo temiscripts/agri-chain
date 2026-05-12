@@ -1,0 +1,17 @@
+node_modules/
+*/node_modules/
+venv/
+*/venv/
+__pycache__/
+.env
+.env.local
+*/.env
+*/.env.local
+dist/
+build/
+*/dist/
+*/build/
+.vscode/
+.DS_Store
+Thumbs.db
+*.log
