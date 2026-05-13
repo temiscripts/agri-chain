@@ -8,7 +8,8 @@ from agrichain.ai.utils.brave_search import BraveSearch
 from agrichain.ai.utils.state_crops import is_crop_suitable_for_state, get_state_crops
 
 logger = logging.getLogger(__name__)
-
+from dotenv import load_dotenv
+load_dotenv()
 
 class MarketAgent:
 
