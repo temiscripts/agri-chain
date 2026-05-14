@@ -1,13 +1,5 @@
 import { motion } from 'motion/react'
 
-/**
- * Background — Earthy mesh + topographic contour lines
- * Layer 1: organic gradient base (set in index.css)
- * Layer 2: drifting mesh blobs (gold + brown)
- * Layer 3: topographic contour lines (brown)
- * Layer 3.5: paper grain (set in index.css)
- * Layer 4: page content
- */
 export default function Background({ variant = 'default', children }) {
   const className = `organic-bg ${variant !== 'default' ? variant : ''}`
 
@@ -20,14 +12,13 @@ export default function Background({ variant = 'default', children }) {
   )
 }
 
-// ── Layer 2: drifting mesh blobs (Option B) ────────────────────
+// ── Layer 2: drifting mesh blobs ──────────────────────────────
 function MeshBlobs() {
   return (
     <div
       className="fixed inset-0 pointer-events-none overflow-hidden"
       style={{ zIndex: 1 }}
     >
-      {/* Top-right golden blob */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{
@@ -50,8 +41,6 @@ function MeshBlobs() {
           filter: 'blur(40px)',
         }}
       />
-
-      {/* Center earth-brown blob */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{
@@ -66,7 +55,7 @@ function MeshBlobs() {
         }}
         className="absolute"
         style={{
-          top: '20%',
+          top: '30%',
           left: '20%',
           width: '50vw',
           height: '50vw',
@@ -74,8 +63,6 @@ function MeshBlobs() {
           filter: 'blur(50px)',
         }}
       />
-
-      {/* Bottom-left amber blob */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{
@@ -98,8 +85,6 @@ function MeshBlobs() {
           filter: 'blur(45px)',
         }}
       />
-
-      {/* Bottom-right deep gold blob */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{
@@ -126,8 +111,13 @@ function MeshBlobs() {
   )
 }
 
-// ── Layer 3: topographic contour lines (Option A) ──────────────
+// ── Layer 3: topographic contour lines — distributed evenly ──
 function TopographicLines() {
+  // Generate evenly-spaced contour lines across the full viewport height
+  const primaryLines = generateContours(8, 1)
+  const secondaryLines = generateContours(8, 0.5)
+  const accentLines = generateContours(4, 1)
+
   return (
     <motion.svg
       initial={{ opacity: 0 }}
@@ -135,65 +125,65 @@ function TopographicLines() {
       transition={{ duration: 2, delay: 0.2 }}
       className="fixed inset-0 w-full h-full pointer-events-none"
       style={{ zIndex: 2 }}
-      viewBox="0 0 1440 900"
-      preserveAspectRatio="xMidYMid slice"
+      preserveAspectRatio="none"
+      viewBox="0 0 1440 1000"
       xmlns="http://www.w3.org/2000/svg"
     >
       {/* Primary contour lines — earth brown, thicker */}
       <g
         stroke="#4E342E"
-        strokeWidth="1.8"
+        strokeWidth="2"
         fill="none"
         strokeLinecap="round"
-        opacity="0.32"
+        opacity="0.30"
       >
-        {CONTOUR_PATHS.map((d, i) => (
+        {primaryLines.map((d, i) => (
           <motion.path
-            key={i}
+            key={`p-${i}`}
             d={d}
             initial={{ pathLength: 0 }}
             animate={{ pathLength: 1 }}
             transition={{
-              duration: 3 + i * 0.25,
-              delay: 0.3 + i * 0.12,
+              duration: 3 + i * 0.2,
+              delay: 0.3 + i * 0.1,
               ease: 'easeOut',
             }}
           />
         ))}
       </g>
 
-      {/* Secondary thinner contour lines — deeper brown */}
+      {/* Secondary thinner contour lines */}
       <g
         stroke="#3E2723"
-        strokeWidth="1"
+        strokeWidth="1.2"
         fill="none"
         strokeLinecap="round"
         opacity="0.22"
       >
-        {SECONDARY_CONTOURS.map((d, i) => (
+        {secondaryLines.map((d, i) => (
           <motion.path
             key={`s-${i}`}
             d={d}
             initial={{ pathLength: 0 }}
             animate={{ pathLength: 1 }}
             transition={{
-              duration: 4 + i * 0.3,
-              delay: 0.8 + i * 0.18,
+              duration: 4 + i * 0.25,
+              delay: 0.6 + i * 0.12,
               ease: 'easeOut',
             }}
           />
         ))}
       </g>
 
-      {/* Harvest gold accent lines — thin, sparse */}
+      {/* Harvest gold accent lines — sparse */}
       <g
         stroke="#A66D1F"
-        strokeWidth="0.9"
+        strokeWidth="1.2"
         fill="none"
         strokeLinecap="round"
         opacity="0.28"
       >
-        {ACCENT_CONTOURS.map((d, i) => (
+        {accentLines.map((d, i) => (
           <motion.path
             key={`a-${i}`}
             d={d}
@@ -201,7 +191,7 @@ function TopographicLines() {
             animate={{ pathLength: 1 }}
             transition={{
               duration: 4.5 + i * 0.3,
-              delay: 1.2 + i * 0.2,
+              delay: 1.0 + i * 0.2,
               ease: 'easeOut',
             }}
           />
@@ -211,30 +201,27 @@ function TopographicLines() {
   )
 }
 
-// Primary contour paths — like elevation lines on a soil map
-const CONTOUR_PATHS = [
-  'M -100 100 Q 250 50, 500 130 T 1000 110 T 1600 150',
-  'M -100 220 Q 300 170, 600 240 T 1100 210 T 1600 250',
-  'M -100 340 Q 280 290, 550 360 T 1050 320 T 1600 360',
-  'M -100 460 Q 320 410, 620 490 T 1120 450 T 1600 500',
-  'M -100 590 Q 280 530, 580 610 T 1080 570 T 1600 620',
-  'M -100 720 Q 320 660, 640 740 T 1140 700 T 1600 750',
-  'M -100 840 Q 280 780, 580 860 T 1080 820 T 1600 870',
-]
+/**
+ * Generates contour-shaped paths evenly spread across viewBox 1440x1000.
+ * count = number of lines, offset = vertical shift for secondary layer
+ */
+function generateContours(count, offset) {
+  const lines = []
+  const totalHeight = 1000
+  const spacing = totalHeight / (count + 1)
 
-// Tighter, between-line secondary contours
-const SECONDARY_CONTOURS = [
-  'M -100 160 Q 280 110, 560 180 T 1060 160 T 1600 200',
-  'M -100 280 Q 320 230, 620 300 T 1120 270 T 1600 310',
-  'M -100 400 Q 280 350, 580 420 T 1080 390 T 1600 430',
-  'M -100 520 Q 320 470, 640 550 T 1140 510 T 1600 560',
-  'M -100 650 Q 280 600, 580 680 T 1080 640 T 1600 690',
-  'M -100 780 Q 320 720, 640 800 T 1140 760 T 1600 810',
-]
-
-// Sparse harvest gold accents
-const ACCENT_CONTOURS = [
-  'M -100 80 Q 320 30, 640 100 T 1140 60 T 1600 110',
-  'M -100 430 Q 280 380, 580 450 T 1080 410 T 1600 460',
-  'M -100 680 Q 320 620, 640 700 T 1140 660 T 1600 710',
-]
+  for (let i = 0; i < count; i++) {
+    const y = spacing * (i + 1) + offset * (spacing / 2)
+    // Use deterministic-looking wave variation per line
+    const a1 = 30 + (i * 17) % 40
+    const a2 = 40 + (i * 23) % 35
+    const a3 = 25 + (i * 29) % 45
+    const path =
+      `M -100 ${y} ` +
+      `Q 240 ${y - a1}, 480 ${y + a2 / 2} ` +
+      `T 960 ${y - a3 / 2} ` +
+      `T 1600 ${y + a1 / 3}`
+    lines.push(path)
+  }
+  return lines
+}
