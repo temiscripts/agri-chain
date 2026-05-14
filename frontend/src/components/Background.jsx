@@ -1,18 +1,20 @@
 import { motion } from 'motion/react'
 
-export default function Background({ variant = 'default', children }) {
-  const className = `organic-bg ${variant !== 'default' ? variant : ''}`
-
+/**
+ * Background layers (fixed, behind all page content):
+ *  - Layer 1: drifting mesh blobs (gold + brown)
+ *  - Layer 2: topographic contour lines (static, fades in once)
+ * Paper grain is handled in CSS.
+ */
+export default function Background() {
   return (
-    <div className={className}>
+    <>
       <MeshBlobs />
       <TopographicLines />
-      {children}
-    </div>
+    </>
   )
 }
 
-// ── Layer 2: drifting mesh blobs ──────────────────────────────
 function MeshBlobs() {
   return (
     <div
@@ -55,7 +57,7 @@ function MeshBlobs() {
         }}
         className="absolute"
         style={{
-          top: '30%',
+          top: '35%',
           left: '20%',
           width: '50vw',
           height: '50vw',
@@ -85,143 +87,51 @@ function MeshBlobs() {
           filter: 'blur(45px)',
         }}
       />
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{
-          opacity: 1,
-          x: [0, -20, 15, 0],
-          y: [0, 20, -10, 0],
-        }}
-        transition={{
-          opacity: { duration: 2, delay: 0.9 },
-          x: { duration: 28, repeat: Infinity, ease: 'easeInOut' },
-          y: { duration: 24, repeat: Infinity, ease: 'easeInOut' },
-        }}
-        className="absolute"
-        style={{
-          bottom: '-5%',
-          right: '5%',
-          width: '45vw',
-          height: '45vw',
-          background: 'radial-gradient(circle, rgba(210, 150, 70, 0.30) 0%, transparent 65%)',
-          filter: 'blur(40px)',
-        }}
-      />
     </div>
   )
 }
 
-// ── Layer 3: topographic contour lines — distributed evenly ──
 function TopographicLines() {
-  // Generate evenly-spaced contour lines across the full viewport height
-  const primaryLines = generateContours(8, 1)
-  const secondaryLines = generateContours(8, 0.5)
-  const accentLines = generateContours(4, 1)
+  const primary = generateContours(9, 0)
+  const secondary = generateContours(9, 0.5)
+  const accent = generateContours(5, 0.25)
 
   return (
     <motion.svg
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      transition={{ duration: 2, delay: 0.2 }}
+      transition={{ duration: 2, delay: 0.4 }}
       className="fixed inset-0 w-full h-full pointer-events-none"
       style={{ zIndex: 2 }}
       preserveAspectRatio="none"
-      viewBox="0 0 1440 1000"
+      viewBox="0 0 1440 900"
       xmlns="http://www.w3.org/2000/svg"
     >
-      {/* Primary contour lines — earth brown, thicker */}
-      <g
-        stroke="#4E342E"
-        strokeWidth="2"
-        fill="none"
-        strokeLinecap="round"
-        opacity="0.30"
-      >
-        {primaryLines.map((d, i) => (
-          <motion.path
-            key={`p-${i}`}
-            d={d}
-            initial={{ pathLength: 0 }}
-            animate={{ pathLength: 1 }}
-            transition={{
-              duration: 3 + i * 0.2,
-              delay: 0.3 + i * 0.1,
-              ease: 'easeOut',
-            }}
-          />
-        ))}
+      <g stroke="#4E342E" strokeWidth="2" fill="none" strokeLinecap="round" opacity="0.32">
+        {primary.map((d, i) => <path key={`p-${i}`} d={d} />)}
       </g>
-
-      {/* Secondary thinner contour lines */}
-      <g
-        stroke="#3E2723"
-        strokeWidth="1.2"
-        fill="none"
-        strokeLinecap="round"
-        opacity="0.22"
-      >
-        {secondaryLines.map((d, i) => (
-          <motion.path
-            key={`s-${i}`}
-            d={d}
-            initial={{ pathLength: 0 }}
-            animate={{ pathLength: 1 }}
-            transition={{
-              duration: 4 + i * 0.25,
-              delay: 0.6 + i * 0.12,
-              ease: 'easeOut',
-            }}
-          />
-        ))}
+      <g stroke="#3E2723" strokeWidth="1.2" fill="none" strokeLinecap="round" opacity="0.22">
+        {secondary.map((d, i) => <path key={`s-${i}`} d={d} />)}
       </g>
-
-      {/* Harvest gold accent lines — sparse */}
-      <g
-        stroke="#A66D1F"
-        strokeWidth="1.2"
-        fill="none"
-        strokeLinecap="round"
-        opacity="0.28"
-      >
-        {accentLines.map((d, i) => (
-          <motion.path
-            key={`a-${i}`}
-            d={d}
-            initial={{ pathLength: 0 }}
-            animate={{ pathLength: 1 }}
-            transition={{
-              duration: 4.5 + i * 0.3,
-              delay: 1.0 + i * 0.2,
-              ease: 'easeOut',
-            }}
-          />
-        ))}
+      <g stroke="#A66D1F" strokeWidth="1.3" fill="none" strokeLinecap="round" opacity="0.30">
+        {accent.map((d, i) => <path key={`a-${i}`} d={d} />)}
       </g>
     </motion.svg>
   )
 }
 
-/**
- * Generates contour-shaped paths evenly spread across viewBox 1440x1000.
- * count = number of lines, offset = vertical shift for secondary layer
- */
 function generateContours(count, offset) {
   const lines = []
-  const totalHeight = 1000
-  const spacing = totalHeight / (count + 1)
-
+  const total = 900
+  const spacing = total / (count + 1)
   for (let i = 0; i < count; i++) {
     const y = spacing * (i + 1) + offset * (spacing / 2)
-    // Use deterministic-looking wave variation per line
-    const a1 = 30 + (i * 17) % 40
-    const a2 = 40 + (i * 23) % 35
-    const a3 = 25 + (i * 29) % 45
-    const path =
-      `M -100 ${y} ` +
-      `Q 240 ${y - a1}, 480 ${y + a2 / 2} ` +
-      `T 960 ${y - a3 / 2} ` +
-      `T 1600 ${y + a1 / 3}`
-    lines.push(path)
+    const a1 = 25 + (i * 17) % 35
+    const a2 = 35 + (i * 23) % 30
+    const a3 = 20 + (i * 29) % 40
+    lines.push(
+      `M -100 ${y} Q 240 ${y - a1}, 480 ${y + a2 / 2} T 960 ${y - a3 / 2} T 1600 ${y + a1 / 3}`
+    )
   }
   return lines
 }

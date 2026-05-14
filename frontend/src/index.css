@@ -11,47 +11,64 @@ html, body, #root {
   color: #4E342E;
   font-family: 'Inter', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
-  /* Fallback color so there is never a flash of white at top */
   background: #E8DEC5;
 }
 
 /* ─────────────────────────────────────────────
-   EARTHY BASE — warmer browns + golden tones
-   Flush to top edge, no white space anywhere
+   EARTHY BASE GRADIENT — brown + gold
    ───────────────────────────────────────────── */
-.organic-bg {
+.page-bg {
   position: relative;
   min-height: 100vh;
   background:
     linear-gradient(180deg,
-      #E8DEC5 0%,         /* warm wheat at top */
-      #DBCCA8 30%,        /* tan */
-      #C9B388 60%,        /* deeper amber */
-      #BFA67A 100%);      /* golden brown at bottom */
-  overflow: hidden;
+      #E8DEC5 0%,
+      #DBCCA8 30%,
+      #C9B388 60%,
+      #BFA67A 100%);
 }
 
-/* Paper grain — gives it tactile depth */
-.organic-bg::after {
+.page-bg.calm {
+  background:
+    linear-gradient(180deg,
+      #ECE3CB 0%,
+      #DCCDAD 50%,
+      #CDB890 100%);
+}
+
+.page-bg.celebratory {
+  background:
+    linear-gradient(180deg,
+      #E8DEC5 0%,
+      #D9C49A 35%,
+      #C9A86E 70%,
+      #B89352 100%);
+}
+
+/* Paper grain texture — adds tactile feel */
+.page-bg::after {
   content: '';
   position: fixed;
   inset: 0;
+  z-index: 3;
   background-image:
     url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3CfeColorMatrix values='0 0 0 0 0.30  0 0 0 0 0.18  0 0 0 0 0.10  0 0 0 0.22 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
   opacity: 0.55;
   mix-blend-mode: multiply;
   pointer-events: none;
-  z-index: 3;
 }
 
-/* Make sure all content sits above the texture and lines */
-.organic-bg > * {
+/* All page content sits above the background layers */
+.page-bg > .page-content {
   position: relative;
-  z-index: 4;
+  z-index: 10;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 /* ─────────────────────────────────────────────
-   LEAF / CORNER ACCENT GLOW
+   ACCENT GLOW + CARD SHADOW
    ───────────────────────────────────────────── */
 .leaf-glow {
   position: relative;
@@ -68,30 +85,9 @@ html, body, #root {
   pointer-events: none;
 }
 
-/* ─────────────────────────────────────────────
-   ELEVATED CARD SHADOW
-   ───────────────────────────────────────────── */
 .card-elevated {
   box-shadow:
     0 1px 2px rgba(78, 52, 46, 0.06),
     0 10px 30px rgba(78, 52, 46, 0.12),
     0 0 0 1px rgba(78, 52, 46, 0.04);
-}
-
-/* Per-page tonal variations */
-.organic-bg.calm {
-  background:
-    linear-gradient(180deg,
-      #ECE3CB 0%,
-      #DCCDAD 50%,
-      #CDB890 100%);
-}
-
-.organic-bg.celebratory {
-  background:
-    linear-gradient(180deg,
-      #E8DEC5 0%,
-      #D9C49A 35%,
-      #C9A86E 70%,
-      #B89352 100%);
 }

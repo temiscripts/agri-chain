@@ -163,68 +163,71 @@ export default function ResultsScreen() {
   const plan = FARM_PLAN[lang] || FARM_PLAN.english
 
   return (
-    <Background variant={stage === 'done' ? 'celebratory' : 'default'}>
-      {/* Top nav */}
-      <div className="px-6 md:px-10 pt-5 pb-4 flex items-center justify-between">
-        <button
-          onClick={() => navigate('/onboarding')}
-          className="flex items-center gap-2 text-slate hover:text-forest transition-colors text-sm font-medium"
-        >
-          <ArrowLeft className="w-4 h-4" /> Back
-        </button>
-        <div className="flex items-center gap-2.5">
-          <div className="w-7 h-7 rounded-lg bg-forest flex items-center justify-center">
-            <Sprout className="w-4 h-4 text-white" />
+    <div className={`page-bg ${stage === 'done' ? 'celebratory' : ''}`}>
+      <Background />
+      <div className="page-content">
+        {/* Top nav */}
+        <div className="px-6 md:px-10 pt-5 pb-3 flex items-center justify-between">
+          <button
+            onClick={() => navigate('/onboarding')}
+            className="flex items-center gap-2 text-earth hover:text-forest transition-colors text-sm font-medium"
+          >
+            <ArrowLeft className="w-4 h-4" /> Back
+          </button>
+          <div className="flex items-center gap-2.5">
+            <div className="w-7 h-7 rounded-lg bg-forest flex items-center justify-center">
+              <Sprout className="w-4 h-4 text-white" />
+            </div>
+            <span className="font-display font-semibold text-forest">AgriChain</span>
           </div>
-          <span className="font-display font-semibold text-forest">AgriChain</span>
-        </div>
-        <div className="text-xs text-slate font-mono">
-          {stage === 'connecting' && 'init'}
-          {stage === 'dispatching' && 'dispatching'}
-          {stage === 'working' && `${completed.length}/4`}
-          {stage === 'done' && '✓ ready'}
-        </div>
-      </div>
-
-      <div className="max-w-5xl mx-auto px-6 pb-16">
-        {/* Profile summary banner */}
-        <ProfileBanner profile={profile} />
-
-        {/* Orchestrator status */}
-        <OrchestratorStatus stage={stage} completed={completed.length} />
-
-        {/* 4 agents grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
-          {MOCK_AGENTS.map((agent, i) => (
-            <AgentCard
-              key={agent.id}
-              agent={agent}
-              index={i}
-              stage={stage}
-              completed={completed.includes(agent.id)}
-              onClick={() => setActiveAgent(agent)}
-            />
-          ))}
+          <div className="text-xs text-earth/70 font-mono">
+            {stage === 'connecting' && 'init'}
+            {stage === 'dispatching' && 'dispatching'}
+            {stage === 'working' && `${completed.length}/4`}
+            {stage === 'done' && '✓ ready'}
+          </div>
         </div>
 
-        {/* Final farm plan */}
+        <div className="max-w-5xl mx-auto px-6 pb-16 w-full">
+          {/* Profile summary banner */}
+          <ProfileBanner profile={profile} />
+
+          {/* Orchestrator status */}
+          <OrchestratorStatus stage={stage} completed={completed.length} />
+
+          {/* 4 agents grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
+            {MOCK_AGENTS.map((agent, i) => (
+              <AgentCard
+                key={agent.id}
+                agent={agent}
+                index={i}
+                stage={stage}
+                completed={completed.includes(agent.id)}
+                onClick={() => setActiveAgent(agent)}
+              />
+            ))}
+          </div>
+
+          {/* Final farm plan */}
+          <AnimatePresence>
+            {stage === 'done' && (
+              <FarmPlan plan={plan} profile={profile} />
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* Agent detail modal */}
         <AnimatePresence>
-          {stage === 'done' && (
-            <FarmPlan plan={plan} profile={profile} />
+          {activeAgent && (
+            <AgentDetailModal
+              agent={activeAgent}
+              onClose={() => setActiveAgent(null)}
+            />
           )}
         </AnimatePresence>
       </div>
-
-      {/* Agent detail modal */}
-      <AnimatePresence>
-        {activeAgent && (
-          <AgentDetailModal
-            agent={activeAgent}
-            onClose={() => setActiveAgent(null)}
-          />
-        )}
-      </AnimatePresence>
-    </Background>
+    </div>
   )
 }
 
