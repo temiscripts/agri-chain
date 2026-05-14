@@ -11,58 +11,47 @@ html, body, #root {
   color: #4E342E;
   font-family: 'Inter', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
+  /* Fallback color so there is never a flash of white at top */
+  background: #E8DEC5;
 }
 
 /* ─────────────────────────────────────────────
-   EARTHY LAYERED BASE (Option C)
-   Solid base color → soft sage at the bottom
+   EARTHY BASE — warmer browns + golden tones
+   Flush to top edge, no white space anywhere
    ───────────────────────────────────────────── */
 .organic-bg {
   position: relative;
+  min-height: 100vh;
   background:
     linear-gradient(180deg,
-      #F5F1E6 0%,        /* warm cream at top */
-      #EDE7D3 35%,        /* slightly deeper wheat */
-      #E3E5D0 70%,        /* soft sage transition */
-      #D8E0CB 100%);      /* dusty olive at bottom */
+      #E8DEC5 0%,         /* warm wheat at top */
+      #DBCCA8 30%,        /* tan */
+      #C9B388 60%,        /* deeper amber */
+      #BFA67A 100%);      /* golden brown at bottom */
   overflow: hidden;
 }
 
-/* Paper grain texture layer — adds tactile feel */
+/* Paper grain — gives it tactile depth */
 .organic-bg::after {
   content: '';
   position: fixed;
   inset: 0;
   background-image:
-    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3CfeColorMatrix values='0 0 0 0 0.30  0 0 0 0 0.20  0 0 0 0 0.15  0 0 0 0.18 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  opacity: 0.5;
+    url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3CfeColorMatrix values='0 0 0 0 0.30  0 0 0 0 0.18  0 0 0 0 0.10  0 0 0 0.22 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity: 0.55;
   mix-blend-mode: multiply;
   pointer-events: none;
-  z-index: 1;
+  z-index: 3;
 }
 
-/* Soft warm-glow blob (subtle hint of Option B for warmth) */
-.organic-bg::before {
-  content: '';
-  position: absolute;
-  top: -10%;
-  right: -10%;
-  width: 60vw;
-  height: 60vw;
-  background: radial-gradient(circle, rgba(245, 166, 35, 0.18) 0%, transparent 60%);
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* Make sure content sits above the texture */
+/* Make sure all content sits above the texture and lines */
 .organic-bg > * {
   position: relative;
-  z-index: 2;
+  z-index: 4;
 }
 
 /* ─────────────────────────────────────────────
    LEAF / CORNER ACCENT GLOW
-   Used on hero for subtle warmth
    ───────────────────────────────────────────── */
 .leaf-glow {
   position: relative;
@@ -73,7 +62,7 @@ html, body, #root {
   inset: -20% -10% auto auto;
   width: 300px;
   height: 300px;
-  background: radial-gradient(circle, rgba(26, 107, 60, 0.10) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(78, 52, 46, 0.10) 0%, transparent 70%);
   border-radius: 50%;
   z-index: 0;
   pointer-events: none;
@@ -81,29 +70,28 @@ html, body, #root {
 
 /* ─────────────────────────────────────────────
    ELEVATED CARD SHADOW
-   Warmer shadow to match the earth palette
    ───────────────────────────────────────────── */
 .card-elevated {
   box-shadow:
-    0 1px 2px rgba(78, 52, 46, 0.04),
-    0 8px 24px rgba(78, 52, 46, 0.08),
-    0 0 0 1px rgba(26, 107, 60, 0.03);
+    0 1px 2px rgba(78, 52, 46, 0.06),
+    0 10px 30px rgba(78, 52, 46, 0.12),
+    0 0 0 1px rgba(78, 52, 46, 0.04);
 }
 
-/* Per-page tonal shift (subtle) */
+/* Per-page tonal variations */
 .organic-bg.calm {
   background:
     linear-gradient(180deg,
-      #F7F4EA 0%,
-      #EFEBDB 50%,
-      #E8E8D5 100%);
+      #ECE3CB 0%,
+      #DCCDAD 50%,
+      #CDB890 100%);
 }
 
 .organic-bg.celebratory {
   background:
     linear-gradient(180deg,
-      #F5F1E6 0%,
-      #EDE7D3 30%,
-      #E3E5D0 60%,
-      #D5DEC8 100%);
+      #E8DEC5 0%,
+      #D9C49A 35%,
+      #C9A86E 70%,
+      #B89352 100%);
 }
