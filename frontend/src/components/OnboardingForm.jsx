@@ -72,7 +72,7 @@ export default function OnboardingForm() {
     <Background variant="calm">
       <div className="min-h-screen flex flex-col">
       {/* Top nav */}
-      <div className="px-6 md:px-10 py-6 flex items-center justify-between">
+      <div className="px-6 md:px-10 pt-5 pb-4 flex items-center justify-between">
         <button
           onClick={back}
           className="flex items-center gap-2 text-slate hover:text-forest transition-colors text-sm font-medium"

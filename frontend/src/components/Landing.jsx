@@ -13,7 +13,7 @@ export default function Landing() {
   return (
     <Background variant="default">
       {/* Nav */}
-      <nav className="flex items-center justify-between px-6 md:px-10 py-6">
+      <nav className="flex items-center justify-between px-6 md:px-10 pt-5 pb-4">
         <motion.div
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}

@@ -165,7 +165,7 @@ export default function ResultsScreen() {
   return (
     <Background variant={stage === 'done' ? 'celebratory' : 'default'}>
       {/* Top nav */}
-      <div className="px-6 md:px-10 py-6 flex items-center justify-between">
+      <div className="px-6 md:px-10 pt-5 pb-4 flex items-center justify-between">
         <button
           onClick={() => navigate('/onboarding')}
           className="flex items-center gap-2 text-slate hover:text-forest transition-colors text-sm font-medium"
