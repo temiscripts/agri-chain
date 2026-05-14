@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
+import Background from './Background' 
 import { useNavigate } from 'react-router-dom'
 import {
   Sprout, CloudRain, TrendingUp, Wallet, Check, ArrowLeft,
@@ -162,7 +163,7 @@ export default function ResultsScreen() {
   const plan = FARM_PLAN[lang] || FARM_PLAN.english
 
   return (
-    <div className="organic-bg min-h-screen">
+    <Background variant={stage === 'done' ? 'celebratory' : 'default'}>
       {/* Top nav */}
       <div className="px-6 md:px-10 py-6 flex items-center justify-between">
         <button
@@ -223,7 +224,7 @@ export default function ResultsScreen() {
           />
         )}
       </AnimatePresence>
-    </div>
+    </Background>
   )
 }
 

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'motion/react'
 import { useNavigate } from 'react-router-dom'
+import Background from './Background' 
 import {
   ArrowRight, ArrowLeft, MapPin, Sprout, Ruler, Globe, Check
 } from 'lucide-react'
@@ -68,7 +69,8 @@ export default function OnboardingForm() {
   }
 
   return (
-    <div className="organic-bg min-h-screen flex flex-col">
+    <Background variant="calm">
+      <div className="min-h-screen flex flex-col">
       {/* Top nav */}
       <div className="px-6 md:px-10 py-6 flex items-center justify-between">
         <button
@@ -288,5 +290,6 @@ export default function OnboardingForm() {
         </div>
       </div>
     </div>
+    </Background>
   )
 }

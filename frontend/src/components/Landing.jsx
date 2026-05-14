@@ -1,6 +1,7 @@
 import { motion, useInView } from 'motion/react'
 import { useNavigate } from 'react-router-dom'
 import { useRef, useState, useEffect } from 'react'
+import Background from './Background'
 import {
   ArrowRight, Sprout, MapPin, CloudRain, TrendingUp, Wallet,
   Check, Leaf, Shield, Globe
@@ -10,7 +11,7 @@ export default function Landing() {
   const navigate = useNavigate()
 
   return (
-    <div className="organic-bg min-h-screen">
+    <Background variant="default">
       {/* Nav */}
       <nav className="flex items-center justify-between px-6 md:px-10 py-6">
         <motion.div
@@ -132,7 +133,7 @@ export default function Landing() {
           Free for farmers, forever
         </div>
       </div>
-    </div>
+      </Background>
   )
 }
 
