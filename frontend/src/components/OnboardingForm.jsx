@@ -32,7 +32,7 @@ const CROPS = [
   { id: 'yam', label: 'Yam', emoji: '🍠' },
   { id: 'tomato', label: 'Tomato', emoji: '🍅' },
   { id: 'sorghum', label: 'Sorghum', emoji: '🌾' },
-  { id: 'beans', label: 'Beans', emoji: '🫘' },
+  { id: 'beans', label: 'Beans', emoji: '🌱' },
   { id: 'groundnut', label: 'Groundnut', emoji: '🥜' },
 ]
 
