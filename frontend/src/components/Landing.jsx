@@ -342,4 +342,152 @@ function PlanLine({ label, text }) {
   )
 }
 
+// ── SAMPLE PROFILES ──────────────────────────────────────────────
+
+const SAMPLE_PROFILES = [
+  {
+    name: 'Chukwuemeka',
+    emoji: '🌾',
+    role: 'Rice farmer',
+    location: 'Kebbi · Birnin Kebbi',
+    farmSize: '2 hectares',
+    language: 'Hausa',
+    profile: {
+      state: 'Kebbi',
+      lga: 'Birnin Kebbi',
+      soilType: 'alluvial',
+      crop: 'rice',
+      farmSize: '2',
+      fertilizerType: 'both',
+      fertilizerFrequency: 'twice',
+      language: 'hausa',
+    },
+  },
+  {
+    name: 'Adaeze',
+    emoji: '🍅',
+    role: 'Tomato farmer',
+    location: 'Plateau · Jos North',
+    farmSize: '1.5 hectares',
+    language: 'Igbo',
+    profile: {
+      state: 'Plateau',
+      lga: 'Jos North',
+      soilType: 'loamy',
+      crop: 'tomato',
+      farmSize: '1.5',
+      fertilizerType: 'natural',
+      fertilizerFrequency: 'multiple',
+      language: 'igbo',
+    },
+  },
+  {
+    name: 'Bashir',
+    emoji: '🌽',
+    role: 'Maize farmer',
+    location: 'Oyo · Ibadan North',
+    farmSize: '3 hectares',
+    language: 'Yoruba',
+    profile: {
+      state: 'Oyo',
+      lga: 'Ibadan North',
+      soilType: 'sandy',
+      crop: 'maize',
+      farmSize: '3',
+      fertilizerType: 'artificial',
+      fertilizerFrequency: 'once',
+      language: 'yoruba',
+    },
+  },
+]
+
+function SampleProfiles() {
+  const ref = useRef(null)
+  const inView = useInView(ref, { once: true, amount: 0.2 })
+  const navigate = useNavigate()
+
+  const handleSelect = (profile) => {
+    sessionStorage.setItem('farmerProfile', JSON.stringify(profile))
+    navigate('/results')
+  }
+
+  return (
+    <section ref={ref} className="px-6 py-20 max-w-6xl mx-auto w-full">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={inView ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 0.6 }}
+        className="text-center mb-12"
+      >
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-forest/10 border border-forest/25 mb-4">
+          <Zap className="w-3 h-3 text-forest" />
+          <span className="text-xs text-forest font-semibold">Try a sample farmer</span>
+        </div>
+        <h2 className="font-display text-3xl md:text-5xl font-bold mb-4 text-earth">
+          Skip the form. Pick a farmer.
+        </h2>
+        <p className="text-earth/75 max-w-xl mx-auto">
+          See AgriChain in action with three real Nigerian farmer profiles.
+          Tap any card to dispatch the agents instantly.
+        </p>
+      </motion.div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {SAMPLE_PROFILES.map((p, i) => (
+          <motion.button
+            key={p.name}
+            initial={{ opacity: 0, y: 20 }}
+            animate={inView ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 0.5, delay: 0.1 + i * 0.1 }}
+            whileHover={{ y: -4 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => handleSelect(p.profile)}
+            className="text-left bg-white/95 border border-border rounded-2xl p-5 card-elevated hover:border-forest/40 transition-colors group"
+          >
+            <div className="flex items-start gap-3 mb-4">
+              <div className="text-4xl">{p.emoji}</div>
+              <div className="flex-1 min-w-0">
+                <div className="font-display font-bold text-earth text-lg">{p.name}</div>
+                <div className="text-xs text-forest font-medium">{p.role}</div>
+              </div>
+            </div>
+
+            <div className="space-y-2 mb-5">
+              <Detail icon={MapPin} text={p.location} />
+              <Detail icon={Leaf} text={p.farmSize} />
+              <Detail icon={Globe} text={p.language} />
+            </div>
+
+            <div className="flex items-center justify-between pt-4 border-t border-border">
+              <span className="text-xs text-earth/60 font-mono">SAMPLE PROFILE</span>
+              <div className="inline-flex items-center gap-1 text-sm font-semibold text-forest group-hover:gap-2 transition-all">
+                Try it
+                <ArrowRight className="w-3.5 h-3.5" />
+              </div>
+            </div>
+          </motion.button>
+        ))}
+      </div>
+
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={inView ? { opacity: 1 } : {}}
+        transition={{ delay: 0.7 }}
+        className="text-center mt-8 text-xs text-earth/60"
+      >
+        Or fill in your own details using the Get Started button at the top.
+      </motion.div>
+    </section>
+  )
+}
+
+function Detail({ icon: Icon, text }) {
+  return (
+    <div className="flex items-center gap-2 text-sm text-earth/80">
+      <Icon className="w-3.5 h-3.5 text-forest shrink-0" />
+      <span>{text}</span>
+    </div>
+  )
+}
+
 function wait(ms) { return new Promise((r) => setTimeout(r, ms)) }
