@@ -40,7 +40,6 @@ export default function ResultsScreen() {
     let cancelled = false
 
     const run = async () => {
-      // Visual choreography starts immediately
       await wait(800)
       if (cancelled) return
       setStage('dispatching')
@@ -49,7 +48,6 @@ export default function ResultsScreen() {
       if (cancelled) return
       setStage('working')
 
-      // Visually stagger agent completion while API works in background
       AGENT_META.forEach((agent) => {
         setTimeout(() => {
           if (cancelled) return
@@ -57,16 +55,11 @@ export default function ResultsScreen() {
         }, agent.duration)
       })
 
-      // Fire real API call in parallel
       try {
         const data = await getFarmPlan(profile)
         if (cancelled) return
         setApiData(data)
-
-        // Make sure all agents show as complete (in case API was faster than timers)
         setCompleted(AGENT_META.map((a) => a.id))
-
-        // Small pause before synthesis reveal
         await wait(600)
         if (cancelled) return
         setStage('done')
@@ -84,7 +77,6 @@ export default function ResultsScreen() {
 
   if (!profile) return null
 
-  // Build agent display data — use mapped API data if available, otherwise nothing on the cards
   const agents = AGENT_META.map((meta) => {
     const apiResult = apiData?.agentResults?.[meta.id]
     const mapped = apiResult ? mapAgentResult(meta.id, apiResult) : null
@@ -326,9 +318,7 @@ function AgentCard({ agent, index, stage, completed, hasResult, onClick }) {
                 {agent.result.title}
               </div>
               {agent.result.confidence && (
-                <div className="inline-block text-[10px] font-mono uppercase tracking-wider text-earth/60 mb-2">
-                  {agent.result.confidence}
-                </div>
+                <ConfidenceBadge confidence={agent.result.confidence} />
               )}
               <div className="text-xs text-earth/70 flex items-center gap-1">
                 Tap card for details
@@ -401,9 +391,7 @@ function AgentDetailModal({ agent, onClose }) {
         </div>
 
         {agent.result.confidence && (
-          <div className="mt-5 p-3 rounded-xl bg-seedling/50 text-xs text-earth/80 text-center font-mono">
-            {agent.result.confidence}
-          </div>
+          <ConfidenceBadge confidence={agent.result.confidence} large />
         )}
 
         <button
@@ -554,6 +542,51 @@ function ErrorState({ error, onRetry }) {
         </div>
       </div>
     </motion.div>
+  )
+}
+
+function ConfidenceBadge({ confidence, large = false }) {
+  const styles = {
+    high: {
+      bg: 'bg-forest/10',
+      text: 'text-forest',
+      border: 'border-forest/30',
+      dot: 'bg-forest',
+    },
+    medium: {
+      bg: 'bg-harvest/15',
+      text: 'text-harvest',
+      border: 'border-harvest/40',
+      dot: 'bg-harvest',
+    },
+    low: {
+      bg: 'bg-red-50',
+      text: 'text-red-600',
+      border: 'border-red-200',
+      dot: 'bg-red-500',
+    },
+  }
+
+  const style = styles[confidence.level] || styles.medium
+
+  if (large) {
+    return (
+      <div className={`mt-5 p-3 rounded-xl border ${style.bg} ${style.border} flex items-center justify-center gap-2`}>
+        <span className={`w-2 h-2 rounded-full ${style.dot}`} />
+        <span className={`text-xs font-mono uppercase tracking-wider ${style.text} font-semibold`}>
+          {confidence.label}
+        </span>
+      </div>
+    )
+  }
+
+  return (
+    <div className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full border ${style.bg} ${style.border} mb-2`}>
+      <span className={`w-1.5 h-1.5 rounded-full ${style.dot}`} />
+      <span className={`text-[10px] font-mono uppercase tracking-wider ${style.text} font-semibold`}>
+        {confidence.label}
+      </span>
+    </div>
   )
 }
 
