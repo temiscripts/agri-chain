@@ -73,7 +73,7 @@ function buildTemplatePlan(agentResults, input) {
     : 'Market data unavailable'
 
   const financeList = finance?.data?.programmes?.length > 0
-    ? finance.data.programmes.map((p) => `${p.name} (up to ₦${p.maxAmount?.toLocaleString() || 'N/A'})`).join('; ')
+    ? finance.data.programmes.map((p) => p.maxAmount ? `${p.name} (up to ₦${p.maxAmount.toLocaleString()})` : `${p.name} (${p.amountLabel || 'amount varies'})`).join('; ')
     : 'No finance programmes matched'
 
   const pestSummary = pest?.data?.alerts?.length > 0

@@ -22,6 +22,7 @@ const PROGRAMMES = [
     id: 'cooperative_credit',
     name: 'Cooperative Society Credit',
     maxAmount: null,
+    amountLabel: 'amount varies by cooperative',
     interestRate: 'Varies by cooperative',
     eligible: () => true,
     nextSteps: 'Register with your local farmers\' cooperative society. Members can access credit at low interest rates, shared inputs, and collective bargaining for market prices.',
@@ -30,10 +31,11 @@ const PROGRAMMES = [
 
 function evaluate({ farmSize, crop }) {
   const eligible = PROGRAMMES.filter((p) => p.eligible({ farmSize, crop }))
-  return eligible.map(({ id, name, maxAmount, interestRate, nextSteps }) => ({
+  return eligible.map(({ id, name, maxAmount, amountLabel, interestRate, nextSteps }) => ({
     id,
     name,
     maxAmount,
+    amountLabel,
     interestRate,
     nextSteps,
   }))
