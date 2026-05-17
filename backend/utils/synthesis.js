@@ -51,7 +51,8 @@ async function synthesize({ farmerInput, agentResults, requestId }) {
     })
 
     const raw = response.content[0].text.trim()
-    const farmPlan = JSON.parse(raw)
+    const jsonStr = raw.replace(/^```(?:json)?\s*/i, '').replace(/\s*```$/i, '').trim()
+    const farmPlan = JSON.parse(jsonStr)
     log('synthesis', requestId, `Claude synthesis SUCCESS input_tokens=${response.usage.input_tokens} output_tokens=${response.usage.output_tokens}`)
     return farmPlan
   } catch (err) {
