@@ -53,7 +53,7 @@ export async function checkHealth() {
 /**
  * Maps an agent's raw API data into the structured shape the
  * AgentCard / AgentDetailModal components expect.
- * Returns { title, details: [{ label, value }] }
+ * Returns { title, confidence: { label, level }, details: [{ label, value }] }
  */
 export function mapAgentResult(agentId, agentResult) {
   if (!agentResult || !agentResult.data) {
@@ -61,8 +61,12 @@ export function mapAgentResult(agentId, agentResult) {
   }
 
   const { data, confidence } = agentResult
+  const confidenceLevel = confidence ? confidence.toLowerCase() : null
   const confidenceTag = confidence
-    ? `${confidence.charAt(0).toUpperCase() + confidence.slice(1)} confidence`
+    ? {
+        label: `${confidence.charAt(0).toUpperCase() + confidence.slice(1)} confidence`,
+        level: confidenceLevel,
+      }
     : null
 
   switch (agentId) {
@@ -183,4 +187,4 @@ export function mapFarmPlan(apiFarmPlan) {
 function cap(s) {
   if (!s || typeof s !== 'string') return s || ''
   return s.charAt(0).toUpperCase() + s.slice(1)
-} 
+}
