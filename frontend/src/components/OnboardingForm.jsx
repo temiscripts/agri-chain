@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'motion/react'
 import { useNavigate } from 'react-router-dom'
 import {
   ArrowRight, ArrowLeft, MapPin, Sprout, Ruler, Globe, Check,
-  Layers, Beaker, Calendar
+  Layers, Beaker, Calendar, User, Phone
 } from 'lucide-react'
 import Background from './Background'
 
@@ -59,10 +59,19 @@ const LANGUAGES = [
 
 const TOTAL_STEPS = 5
 
+// Loose Nigerian phone validation: must start with 0 (11 digits) or +234 (13 digits)
+function isValidNigerianPhone(num) {
+  if (!num) return false
+  const cleaned = num.replace(/\s|-/g, '')
+  return /^(0\d{10}|\+234\d{10})$/.test(cleaned)
+}
+
 export default function OnboardingForm() {
   const navigate = useNavigate()
   const [step, setStep] = useState(0)
   const [data, setData] = useState({
+    name: '',
+    phoneNumber: '',
     state: '',
     lga: '',
     soilType: '',
@@ -76,7 +85,14 @@ export default function OnboardingForm() {
   const update = (field, value) => setData({ ...data, [field]: value })
 
   const canProceed = () => {
-    if (step === 0) return data.state && data.lga
+    if (step === 0) {
+      return (
+        data.name.trim().length >= 2 &&
+        isValidNigerianPhone(data.phoneNumber) &&
+        data.state &&
+        data.lga.trim()
+      )
+    }
     if (step === 1) return data.soilType
     if (step === 2) return data.crop && data.farmSize && Number(data.farmSize) > 0
     if (step === 3) return data.fertilizerType && data.fertilizerFrequency
@@ -128,7 +144,7 @@ export default function OnboardingForm() {
         <div className="flex-1 flex items-start md:items-center justify-center px-6 pt-8 pb-12">
           <div className="w-full max-w-2xl">
             <AnimatePresence mode="wait">
-              {/* STEP 1: LOCATION */}
+              {/* STEP 1: ABOUT YOU + LOCATION */}
               {step === 0 && (
                 <motion.div
                   key="step1"
@@ -138,17 +154,72 @@ export default function OnboardingForm() {
                   transition={{ duration: 0.3 }}
                 >
                   <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-forest/10 border border-forest/25 mb-6">
-                    <MapPin className="w-3 h-3 text-forest" />
-                    <span className="text-xs text-forest font-semibold">Step 1 · Your Location</span>
+                    <User className="w-3 h-3 text-forest" />
+                    <span className="text-xs text-forest font-semibold">Step 1 · About You</span>
                   </div>
                   <h2 className="font-display text-3xl md:text-4xl font-bold text-earth mb-3">
-                    Where is your farm?
+                    Let's get to know you.
                   </h2>
                   <p className="text-earth/75 mb-10">
-                    We use this to fetch soil data, weather forecast, and nearest market prices.
+                    Your phone number is how we will send your weekly farm plan via WhatsApp.
                   </p>
 
                   <div className="space-y-5">
+                    {/* Name */}
+                    <div>
+                      <label className="block text-sm font-medium text-earth mb-2">
+                        <User className="w-3.5 h-3.5 inline mr-1.5 -mt-0.5" />
+                        Your name
+                      </label>
+                      <input
+                        type="text"
+                        value={data.name}
+                        onChange={(e) => update('name', e.target.value)}
+                        placeholder="e.g. Amina Bello"
+                        className="w-full bg-white border border-border rounded-xl py-3.5 px-4 text-earth placeholder:text-earth/40 focus:outline-none focus:border-forest transition-colors"
+                      />
+                    </div>
+
+                    {/* Phone number */}
+                    <div>
+                      <label className="block text-sm font-medium text-earth mb-2">
+                        <Phone className="w-3.5 h-3.5 inline mr-1.5 -mt-0.5" />
+                        Phone number
+                      </label>
+                      <input
+                        type="tel"
+                        inputMode="tel"
+                        value={data.phoneNumber}
+                        onChange={(e) => update('phoneNumber', e.target.value)}
+                        placeholder="e.g. 08012345678 or +2348012345678"
+                        className={`w-full bg-white border rounded-xl py-3.5 px-4 text-earth font-mono placeholder:text-earth/40 focus:outline-none transition-colors ${
+                          data.phoneNumber && !isValidNigerianPhone(data.phoneNumber)
+                            ? 'border-red-400 focus:border-red-500'
+                            : 'border-border focus:border-forest'
+                        }`}
+                      />
+                      {data.phoneNumber && !isValidNigerianPhone(data.phoneNumber) && (
+                        <motion.div
+                          initial={{ opacity: 0, y: -3 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className="mt-2 text-xs text-red-500"
+                        >
+                          Enter a valid Nigerian phone number
+                        </motion.div>
+                      )}
+                    </div>
+
+                    {/* Divider */}
+                    <div className="flex items-center gap-3 py-2">
+                      <div className="flex-1 h-px bg-border" />
+                      <div className="text-xs text-earth/60 font-mono uppercase tracking-wider">
+                        <MapPin className="w-3 h-3 inline mr-1 -mt-0.5" />
+                        Your farm location
+                      </div>
+                      <div className="flex-1 h-px bg-border" />
+                    </div>
+
+                    {/* State */}
                     <div>
                       <label className="block text-sm font-medium text-earth mb-2">State</label>
                       <select
@@ -160,8 +231,12 @@ export default function OnboardingForm() {
                         {STATES.sort().map((s) => <option key={s} value={s}>{s}</option>)}
                       </select>
                     </div>
+
+                    {/* LGA */}
                     <div>
-                      <label className="block text-sm font-medium text-earth mb-2">Local Government Area (LGA)</label>
+                      <label className="block text-sm font-medium text-earth mb-2">
+                        Local Government Area (LGA)
+                      </label>
                       <input
                         type="text"
                         value={data.lga}
@@ -438,4 +513,4 @@ export default function OnboardingForm() {
       </div>
     </div>
   )
-}
+} 
