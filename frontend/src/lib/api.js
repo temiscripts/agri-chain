@@ -1,7 +1,7 @@
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
 export async function orchestrate(farmerProfile) {
-  const res = await fetch(`${API_URL}/api/orchestrate`, {
+  const res = await fetch(`${API_URL}/orchestrate`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(farmerProfile),
@@ -16,7 +16,7 @@ export async function orchestrate(farmerProfile) {
 
 export async function checkHealth() {
   try {
-    const res = await fetch(`${API_URL}/api/health`)
+    const res = await fetch(`${API_URL}/health`)
     return res.ok
   } catch {
     return false
@@ -24,7 +24,7 @@ export async function checkHealth() {
 }
 
 export async function sendToWhatsApp(phoneNumber, plan, language) {
-  const res = await fetch(`${API_URL}/api/whatsapp/send`, {
+  const res = await fetch(`${API_URL}/whatsapp/send`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ phoneNumber, plan, language }),
