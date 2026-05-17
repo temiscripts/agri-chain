@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useRef, useState, useEffect } from 'react'
 import {
   ArrowRight, Sprout, MapPin, CloudRain, TrendingUp, Wallet,
-  Check, Leaf, Shield, Globe
+  Check, Leaf, Shield, Globe, Zap, User
 } from 'lucide-react'
 import Background from './Background'
 
@@ -121,6 +121,8 @@ export default function Landing() {
 
         {/* Demo section */}
         <DemoSection />
+        {/* Sample profiles section */}
+        <SampleProfiles />
 
         {/* Footer */}
         <div className="flex items-center justify-center gap-6 py-10 text-xs text-earth/70">
