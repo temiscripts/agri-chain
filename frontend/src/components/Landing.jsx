@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useRef, useState, useEffect } from 'react'
 import {
   ArrowRight, Sprout, MapPin, CloudRain, TrendingUp, Wallet,
-  Check, Leaf, Shield, Globe, Zap, User
+  Check, Leaf, Shield, Globe, Zap
 } from 'lucide-react'
 import Background from './Background'
 
@@ -38,7 +38,7 @@ export default function Landing() {
         </nav>
 
         {/* Hero */}
-        <div className="flex-1 flex flex-col items-center justify-center px-6 text-center relative leaf-glow py-12">
+        <div className="flex-1 flex flex-col items-center justify-center px-6 text-center relative leaf-glow py-16 md:py-12">
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -53,7 +53,7 @@ export default function Landing() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.1 }}
-            className="font-display text-5xl md:text-7xl font-bold tracking-tight mb-6 max-w-4xl leading-[1.05] text-earth"
+            className="font-display text-4xl sm:text-5xl md:text-7xl font-bold tracking-tight mb-6 max-w-4xl leading-[1.05] text-earth"
           >
             From guesswork{' '}
             <span className="text-forest">to a clear plan.</span>
@@ -87,7 +87,7 @@ export default function Landing() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.6 }}
-            className="mt-20 grid grid-cols-3 gap-8 max-w-2xl w-full"
+            className="mt-16 grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-2xl w-full"
           >
             {[
               { value: '36M+', label: 'Nigerian smallholder farmers' },
@@ -121,7 +121,8 @@ export default function Landing() {
 
         {/* Demo section */}
         <DemoSection />
-        {/* Sample profiles section */}
+
+        {/* Sample profiles */}
         <SampleProfiles />
 
         {/* Footer */}
@@ -353,6 +354,8 @@ const SAMPLE_PROFILES = [
     farmSize: '2 hectares',
     language: 'Hausa',
     profile: {
+      name: 'Chukwuemeka',
+      phoneNumber: '08012345678',
       state: 'Kebbi',
       lga: 'Birnin Kebbi',
       soilType: 'alluvial',
@@ -371,6 +374,8 @@ const SAMPLE_PROFILES = [
     farmSize: '1.5 hectares',
     language: 'Igbo',
     profile: {
+      name: 'Adaeze',
+      phoneNumber: '08023456789',
       state: 'Plateau',
       lga: 'Jos North',
       soilType: 'loamy',
@@ -389,6 +394,8 @@ const SAMPLE_PROFILES = [
     farmSize: '3 hectares',
     language: 'Yoruba',
     profile: {
+      name: 'Bashir',
+      phoneNumber: '08034567890',
       state: 'Oyo',
       lga: 'Ibadan North',
       soilType: 'sandy',
