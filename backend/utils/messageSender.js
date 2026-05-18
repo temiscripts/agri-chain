@@ -3,6 +3,27 @@ const { log, logError } = require('./logger')
 
 // ── WhatsApp ──────────────────────────────────────────────────────────────────
 
+const WA_MAX_LENGTH = 4000
+
+function splitMessage(message) {
+  if (message.length <= WA_MAX_LENGTH) return [message]
+  const chunks = []
+  let remaining = message
+  while (remaining.length > 0) {
+    if (remaining.length <= WA_MAX_LENGTH) { chunks.push(remaining); break }
+    let cut = remaining.lastIndexOf('\n', WA_MAX_LENGTH)
+    if (cut <= 0) cut = WA_MAX_LENGTH
+    chunks.push(remaining.slice(0, cut).trim())
+    remaining = remaining.slice(cut).trim()
+  }
+  return chunks
+}
+
+function normalisePhone(phoneNumber) {
+  // WhatsApp API requires numbers without leading +
+  return String(phoneNumber).replace(/^\+/, '')
+}
+
 async function sendWhatsApp(phoneNumber, message, requestId) {
   const token = process.env.WHATSAPP_TOKEN
   const phoneNumberId = process.env.WHATSAPP_PHONE_NUMBER_ID
@@ -12,25 +33,19 @@ async function sendWhatsApp(phoneNumber, message, requestId) {
     return { sent: false, channel: 'whatsapp', reason: 'not-configured' }
   }
 
+  const to = normalisePhone(phoneNumber)
+  const chunks = splitMessage(message)
+  log('messageSender', requestId, `Sending WhatsApp to ${to} (${chunks.length} chunk(s))`)
+
   try {
-    log('messageSender', requestId, `Sending WhatsApp to ${phoneNumber}`)
-    await axios.post(
-      `https://graph.facebook.com/v18.0/${phoneNumberId}/messages`,
-      {
-        messaging_product: 'whatsapp',
-        to: phoneNumber,
-        type: 'text',
-        text: { body: message },
-      },
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        timeout: 8000,
-      }
-    )
-    log('messageSender', requestId, `WhatsApp sent successfully to ${phoneNumber}`)
+    for (const chunk of chunks) {
+      await axios.post(
+        `https://graph.facebook.com/v18.0/${phoneNumberId}/messages`,
+        { messaging_product: 'whatsapp', to, type: 'text', text: { body: chunk } },
+        { headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' }, timeout: 8000 }
+      )
+    }
+    log('messageSender', requestId, `WhatsApp sent successfully to ${to}`)
     return { sent: true, channel: 'whatsapp' }
   } catch (err) {
     logError('messageSender', requestId, `WhatsApp send failed: ${err.message}`)
