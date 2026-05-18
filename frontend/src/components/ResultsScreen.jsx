@@ -6,6 +6,7 @@ import {
   MapPin, Leaf, Globe, MessageCircle, Copy, Sparkles,
   Loader2, AlertCircle, Calendar, RefreshCw, Phone, X, Send
 } from 'lucide-react'
+import ReactMarkdown from 'react-markdown'
 import Background from './Background'
 import { getFarmPlan, mapAgentResult, mapFarmPlan, sendToWhatsApp, isValidNigerianPhone } from '../lib/api'
 
@@ -692,11 +693,11 @@ function FarmPlan({ plan, profile, onSendWhatsApp }) {
                 className="flex gap-4 p-4 rounded-2xl bg-seedling/40 border border-forest/10"
               >
                 <div className="text-3xl shrink-0">{item.emoji}</div>
-                <div className="flex-1">
-                  <div className="font-semibold text-forest text-sm mb-1 uppercase tracking-wide">
+                <div className="flex-1 min-w-0">
+                  <div className="font-semibold text-forest text-sm mb-2 uppercase tracking-wide">
                     {item.label}
                   </div>
-                  <div className="text-earth leading-relaxed">{item.text}</div>
+                  <PlanText text={item.text} />
                 </div>
               </motion.div>
             ))}

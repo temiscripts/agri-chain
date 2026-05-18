@@ -2,7 +2,7 @@ import { motion, useInView } from 'motion/react'
 import { useNavigate } from 'react-router-dom'
 import { useRef, useState, useEffect } from 'react'
 import {
-  ArrowRight, Sprout, MapPin, CloudRain, TrendingUp, Wallet,
+  ArrowRight, Sprout, MapPin, CloudRain, TrendingUp, Wallet, Bug,
   Check, Leaf, Shield, Globe, Zap
 } from 'lucide-react'
 import Background from './Background'
@@ -46,7 +46,7 @@ export default function Landing() {
             className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-forest/10 border border-forest/25 mb-8"
           >
             <Leaf className="w-3 h-3 text-forest" />
-            <span className="text-xs text-forest font-semibold">AI Farm Advisor · Built for Nigerian Smallholders</span>
+            <span className="text-xs text-forest font-semibold">AI Farm Advisor. Built for Nigerian Smallholders</span>
           </motion.div>
 
           <motion.h1
@@ -65,9 +65,9 @@ export default function Landing() {
             transition={{ duration: 0.7, delay: 0.25 }}
             className="text-lg md:text-xl text-earth/80 max-w-2xl mb-10"
           >
-            Tell us your location, crop and farm size. Four AI agents work in parallel —
-            soil, weather, markets, finance — and deliver a personalized weekly plan
-            straight to your WhatsApp.
+            Tell us your location, crop and farm size. Five AI agents work in parallel,
+            covering soil, weather, markets, finance and pest control, then deliver a
+            personalized weekly plan straight to your WhatsApp.
           </motion.p>
 
           <motion.button
@@ -92,7 +92,7 @@ export default function Landing() {
             {[
               { value: '36M+', label: 'Nigerian smallholder farmers' },
               { value: '40%', label: 'Average post-harvest loss' },
-              { value: '4 agents', label: 'Working in parallel for you' },
+              { value: '5 agents', label: 'Working in parallel for you' },
             ].map((stat, i) => (
               <motion.div
                 key={i}
@@ -143,10 +143,11 @@ export default function Landing() {
 
 // ── DEMO ────────────────────────────────────────────────────────
 const AGENTS = [
-  { id: 'soil', name: 'Soil & Crop Agent', icon: Sprout, task: 'Checking soil composition', result: 'pH 6.2 · loamy · good for rice', duration: 2200 },
-  { id: 'weather', name: 'Weather Agent', icon: CloudRain, task: 'Fetching 7-day forecast', result: 'Light rains Tue–Thu · plant Wednesday', duration: 1600 },
-  { id: 'market', name: 'Market Price Agent', icon: TrendingUp, task: 'Querying nearest markets', result: 'Kano paying ₦42K/bag · +18% vs last month', duration: 2800 },
+  { id: 'soil', name: 'Soil & Crop Agent', icon: Sprout, task: 'Checking soil composition', result: 'pH 6.2, loamy, good for rice', duration: 2200 },
+  { id: 'weather', name: 'Weather Agent', icon: CloudRain, task: 'Fetching 7 day forecast', result: 'Light rains Tue to Thu. Plant Wednesday', duration: 1600 },
+  { id: 'market', name: 'Market Price Agent', icon: TrendingUp, task: 'Querying nearest markets', result: 'Kano paying ₦42K per bag. +18% vs last month', duration: 2800 },
   { id: 'finance', name: 'Finance Agent', icon: Wallet, task: 'Matching loan programmes', result: 'Eligible for BOA smallholder loan up to ₦500K', duration: 2000 },
+  { id: 'pest', name: 'Pest & Disease Agent', icon: Bug, task: 'Scanning for crop threats', result: 'Blast disease risk high. Apply tricyclazole', duration: 2400 },
 ]
 
 function DemoSection() {
@@ -165,10 +166,10 @@ function DemoSection() {
           <span className="text-xs text-earth font-semibold">⚡ Live multi-agent demo</span>
         </div>
         <h2 className="font-display text-3xl md:text-5xl font-bold mb-4 text-earth">
-          One farmer. Four agents.
+          One farmer. Five agents.
         </h2>
         <p className="text-earth/75 max-w-xl mx-auto">
-          Watch a real input dispatch four specialized agents in parallel —
+          Watch a real input dispatch five specialized agents in parallel,
           then synthesize their findings into one clear plan.
         </p>
       </motion.div>
@@ -222,7 +223,7 @@ function DemoCanvas({ inView }) {
           <div className="text-xs text-slate font-mono">
             {stage === 'idle' && 'waiting'}
             {stage === 'dispatching' && 'dispatching agents...'}
-            {stage === 'working' && `${completed.length}/4 complete`}
+            {stage === 'working' && `${completed.length}/5 complete`}
             {stage === 'done' && '✓ synthesis ready'}
           </div>
         </div>
@@ -261,15 +262,16 @@ function DemoCanvas({ inView }) {
               <div className="w-6 h-6 rounded-full bg-forest flex items-center justify-center">
                 <Check className="w-3.5 h-3.5 text-white" />
               </div>
-              <div className="font-display font-semibold text-sm text-forest">Weekly Farm Plan · in Hausa</div>
+              <div className="font-display font-semibold text-sm text-forest">Weekly Farm Plan. In Hausa</div>
             </div>
             <div className="bg-white rounded-xl p-5 border border-border">
-              <PlanLine label="🌱 Wannan mako" text="Shuka shinkafa Laraba — ƙasarka tana da kyau (pH 6.2)." />
+              <PlanLine label="🌱 Wannan mako" text="Shuka shinkafa Laraba. Ƙasarka tana da kyau (pH 6.2)." />
               <PlanLine label="🌧️ Yanayi" text="Ruwan sama mai sauƙi Talata zuwa Alhamis. Babu hadarin ambaliyar ruwa." />
-              <PlanLine label="💰 Kasuwa" text="Sayar a Kano cikin makonni 3. ₦42,000/buhu yanzu (+18%)." />
+              <PlanLine label="💰 Kasuwa" text="Sayar a Kano cikin makonni 3. ₦42,000 a kowace buhu (+18%)." />
               <PlanLine label="🏦 Kuɗi" text="Kana da haƙƙin samun rancen BOA har ₦500,000." />
+              <PlanLine label="🐛 Kwari" text="Hadarin cuta mai tsanani. Yi amfani da maganin tricyclazole." />
               <div className="mt-3 pt-3 border-t border-border text-xs text-slate flex items-center gap-1.5">
-                <Check className="w-3 h-3 text-forest" /> Sent to WhatsApp · +234 ••• ••• 4421
+                <Check className="w-3 h-3 text-forest" /> Sent to WhatsApp. +234 ••• ••• 4421
               </div>
             </div>
           </motion.div>
@@ -350,7 +352,7 @@ const SAMPLE_PROFILES = [
     name: 'Chukwuemeka',
     emoji: '🌾',
     role: 'Rice farmer',
-    location: 'Kebbi · Birnin Kebbi',
+    location: 'Kebbi. Birnin Kebbi',
     farmSize: '2 hectares',
     language: 'Hausa',
     profile: {
@@ -370,7 +372,7 @@ const SAMPLE_PROFILES = [
     name: 'Adaeze',
     emoji: '🍅',
     role: 'Tomato farmer',
-    location: 'Plateau · Jos North',
+    location: 'Plateau. Jos North',
     farmSize: '1.5 hectares',
     language: 'Igbo',
     profile: {
@@ -390,7 +392,7 @@ const SAMPLE_PROFILES = [
     name: 'Bashir',
     emoji: '🌽',
     role: 'Maize farmer',
-    location: 'Oyo · Ibadan North',
+    location: 'Oyo. Ibadan North',
     farmSize: '3 hectares',
     language: 'Yoruba',
     profile: {
