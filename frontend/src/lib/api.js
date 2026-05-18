@@ -39,6 +39,55 @@ export async function getFarmPlan(farmerProfile) {
 }
 
 /**
+ * Send the farm plan to a WhatsApp number.
+ * Returns the API response on success, throws on failure.
+ */
+export async function sendToWhatsApp({ phoneNumber, plan, language, requestId }) {
+  // Normalize phone to +234 format
+  const normalized = normalizePhone(phoneNumber)
+
+  const res = await fetch(`${API_URL}/api/whatsapp/send`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      phoneNumber: normalized,
+      plan,
+      language: language || 'english',
+      requestId: requestId || null,
+    }),
+  })
+
+  if (!res.ok) {
+    const errorText = await res.text().catch(() => '')
+    throw new Error(`WhatsApp send failed (${res.status}): ${errorText}`)
+  }
+
+  return res.json()
+}
+
+/**
+ * Converts 08012345678 or +2348012345678 to +2348012345678
+ */
+export function normalizePhone(num) {
+  if (!num) return ''
+  const cleaned = num.replace(/\s|-/g, '')
+  if (cleaned.startsWith('+234')) return cleaned
+  if (cleaned.startsWith('0') && cleaned.length === 11) {
+    return '+234' + cleaned.slice(1)
+  }
+  return cleaned
+}
+
+/**
+ * Loose validator for Nigerian phone numbers.
+ */
+export function isValidNigerianPhone(num) {
+  if (!num) return false
+  const cleaned = num.replace(/\s|-/g, '')
+  return /^(0\d{10}|\+234\d{10})$/.test(cleaned)
+}
+
+/**
  * Quick reachability check.
  */
 export async function checkHealth() {
