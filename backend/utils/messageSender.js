@@ -83,18 +83,21 @@ async function sendPlan(phoneNumber, planText, requestId) {
 // ── Format farm plan as readable message ─────────────────────────────────────
 
 function formatPlanAsMessage(farmPlan, profile) {
-  const lines = [
-    `*AgriChain Farm Plan* — ${profile.crop} · ${profile.state}`,
-    '',
-  ]
+  const header = `*AgriChain Farm Plan* — ${profile.crop} · ${profile.state}`
+  const footer = '_Reply with your crop, state, and farm size to get a new plan anytime._'
 
+  // ML service returns plain text in _raw — send it directly
+  if (farmPlan._raw) {
+    return `${header}\n\n${farmPlan._raw}\n\n${footer}`
+  }
+
+  const lines = [header, '']
   if (farmPlan.weeklyActions) lines.push(`🌱 *This Week*\n${farmPlan.weeklyActions}`)
   if (farmPlan.weatherSummary) lines.push(`\n🌧️ *Weather*\n${farmPlan.weatherSummary}`)
   if (farmPlan.marketAdvice) lines.push(`\n💰 *Market*\n${farmPlan.marketAdvice}`)
   if (farmPlan.financeOptions) lines.push(`\n🏦 *Finance*\n${farmPlan.financeOptions}`)
   if (farmPlan.pestAlert) lines.push(`\n⚠️ *Pest Alert*\n${farmPlan.pestAlert}`)
-
-  lines.push('\n_Reply with your crop, state, and farm size to get a new plan anytime._')
+  lines.push(`\n${footer}`)
 
   return lines.join('\n')
 }
