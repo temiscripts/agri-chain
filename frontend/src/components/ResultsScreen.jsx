@@ -4,10 +4,10 @@ import { useNavigate } from 'react-router-dom'
 import {
   Sprout, CloudRain, TrendingUp, Wallet, Bug, Check, ArrowLeft,
   MapPin, Leaf, Globe, MessageCircle, Copy, Sparkles,
-  Loader2, AlertCircle, Calendar, RefreshCw
+  Loader2, AlertCircle, Calendar, RefreshCw, Phone, X, Send
 } from 'lucide-react'
 import Background from './Background'
-import { getFarmPlan, mapAgentResult, mapFarmPlan } from '../lib/api'
+import { getFarmPlan, mapAgentResult, mapFarmPlan, sendToWhatsApp, isValidNigerianPhone } from '../lib/api'
 
 const AGENT_META = [
   { id: 'soil',    name: 'Soil & Crop Agent',   icon: Sprout,       task: 'Analyzing soil composition',  duration: 2400 },
@@ -25,6 +25,7 @@ export default function ResultsScreen() {
   const [activeAgent, setActiveAgent] = useState(null)
   const [apiData, setApiData] = useState(null)
   const [error, setError] = useState(null)
+  const [showWhatsApp, setShowWhatsApp] = useState(false)
 
   useEffect(() => {
     const stored = sessionStorage.getItem('farmerProfile')
@@ -139,7 +140,11 @@ export default function ResultsScreen() {
 
               <AnimatePresence>
                 {stage === 'done' && plan.length > 0 && (
-                  <FarmPlan plan={plan} profile={profile} />
+                  <FarmPlan
+                    plan={plan}
+                    profile={profile}
+                    onSendWhatsApp={() => setShowWhatsApp(true)}
+                  />
                 )}
               </AnimatePresence>
             </>
@@ -151,6 +156,19 @@ export default function ResultsScreen() {
             <AgentDetailModal
               agent={activeAgent}
               onClose={() => setActiveAgent(null)}
+            />
+          )}
+        </AnimatePresence>
+
+        <AnimatePresence>
+          {showWhatsApp && (
+            <WhatsAppModal
+              defaultPhone={profile.phoneNumber}
+              defaultName={profile.name}
+              plan={plan}
+              language={profile.language}
+              requestId={apiData?.requestId}
+              onClose={() => setShowWhatsApp(false)}
             />
           )}
         </AnimatePresence>
@@ -405,7 +423,220 @@ function AgentDetailModal({ agent, onClose }) {
   )
 }
 
-function FarmPlan({ plan, profile }) {
+// ── WHATSAPP MODAL ─────────────────────────────────────────────
+function WhatsAppModal({ defaultPhone, defaultName, plan, language, requestId, onClose }) {
+  const [phone, setPhone] = useState(defaultPhone || '')
+  const [status, setStatus] = useState('idle') // idle | sending | success | error
+  const [errorMessage, setErrorMessage] = useState('')
+
+  const canSend = isValidNigerianPhone(phone) && status !== 'sending'
+
+  const handleSend = async () => {
+    if (!canSend) return
+    setStatus('sending')
+    setErrorMessage('')
+    try {
+      await sendToWhatsApp({
+        phoneNumber: phone,
+        plan,
+        language,
+        requestId,
+      })
+      setStatus('success')
+    } catch (err) {
+      console.error('WhatsApp send failed:', err)
+      setErrorMessage(err.message || 'Could not send the message. Please try again.')
+      setStatus('error')
+    }
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      onClick={status !== 'sending' ? onClose : undefined}
+      className="fixed inset-0 bg-earth/40 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+    >
+      <motion.div
+        initial={{ scale: 0.9, opacity: 0, y: 20 }}
+        animate={{ scale: 1, opacity: 1, y: 0 }}
+        exit={{ scale: 0.95, opacity: 0 }}
+        transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+        onClick={(e) => e.stopPropagation()}
+        className="bg-white rounded-3xl max-w-md w-full card-elevated overflow-hidden relative"
+      >
+        {/* Close X */}
+        {status !== 'sending' && (
+          <button
+            onClick={onClose}
+            className="absolute top-4 right-4 w-8 h-8 rounded-full bg-seedling hover:bg-forest/15 flex items-center justify-center transition-colors z-10"
+            aria-label="Close"
+          >
+            <X className="w-4 h-4 text-earth" />
+          </button>
+        )}
+
+        {/* Success state */}
+        {status === 'success' ? (
+          <SuccessView phone={phone} onClose={onClose} />
+        ) : (
+          <div className="p-7">
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-12 h-12 rounded-2xl bg-forest flex items-center justify-center">
+                <MessageCircle className="w-6 h-6 text-white" />
+              </div>
+              <div>
+                <div className="font-display font-bold text-earth text-lg">
+                  Send via WhatsApp
+                </div>
+                <div className="text-sm text-earth/70">
+                  Confirm the number below
+                </div>
+              </div>
+            </div>
+
+            <div className="mb-5">
+              <label className="block text-sm font-medium text-earth mb-2">
+                <Phone className="w-3.5 h-3.5 inline mr-1.5 -mt-0.5" />
+                WhatsApp number
+              </label>
+              <input
+                type="tel"
+                inputMode="tel"
+                value={phone}
+                onChange={(e) => {
+                  setPhone(e.target.value)
+                  if (status === 'error') setStatus('idle')
+                }}
+                disabled={status === 'sending'}
+                placeholder="08012345678 or +2348012345678"
+                className={`w-full bg-white border rounded-xl py-3.5 px-4 text-earth font-mono placeholder:text-earth/40 focus:outline-none transition-colors disabled:bg-seedling/50 disabled:cursor-not-allowed ${
+                  phone && !isValidNigerianPhone(phone)
+                    ? 'border-red-400 focus:border-red-500'
+                    : 'border-border focus:border-forest'
+                }`}
+              />
+              {phone && !isValidNigerianPhone(phone) && (
+                <motion.div
+                  initial={{ opacity: 0, y: -3 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mt-2 text-xs text-red-500"
+                >
+                  Enter a valid Nigerian phone number
+                </motion.div>
+              )}
+              {defaultName && phone === defaultPhone && (
+                <div className="mt-2 text-xs text-earth/60">
+                  This is {defaultName}'s number from the form.
+                </div>
+              )}
+            </div>
+
+            <div className="mb-6 p-4 rounded-xl bg-seedling/50 border border-forest/10">
+              <div className="text-xs text-forest font-semibold uppercase tracking-wider mb-2">
+                Preview
+              </div>
+              <div className="text-sm text-earth/80 line-clamp-3">
+                {plan[0]?.text || 'Your weekly farm plan...'}
+              </div>
+              <div className="mt-2 text-xs text-earth/60">
+                + {plan.length - 1} more {plan.length - 1 === 1 ? 'section' : 'sections'} · in {cap(language)}
+              </div>
+            </div>
+
+            {status === 'error' && (
+              <motion.div
+                initial={{ opacity: 0, y: -5 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-4 p-3 rounded-xl bg-red-50 border border-red-200 flex items-start gap-2"
+              >
+                <AlertCircle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
+                <div className="text-xs text-red-600 break-words">
+                  {errorMessage}
+                </div>
+              </motion.div>
+            )}
+
+            <div className="flex gap-3">
+              <button
+                onClick={onClose}
+                disabled={status === 'sending'}
+                className="flex-1 py-3.5 rounded-full bg-seedling text-earth font-semibold hover:bg-forest/10 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSend}
+                disabled={!canSend}
+                className={`flex-1 flex items-center justify-center gap-2 py-3.5 rounded-full font-semibold transition-all ${
+                  canSend
+                    ? 'bg-forest text-white hover:bg-forest-dark'
+                    : 'bg-earth/15 text-earth/40 cursor-not-allowed'
+                }`}
+              >
+                {status === 'sending' ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Sending...
+                  </>
+                ) : (
+                  <>
+                    <Send className="w-4 h-4" />
+                    Send
+                  </>
+                )}
+              </button>
+            </div>
+          </div>
+        )}
+      </motion.div>
+    </motion.div>
+  )
+}
+
+function SuccessView({ phone, onClose }) {
+  return (
+    <div className="p-7 text-center">
+      <motion.div
+        initial={{ scale: 0 }}
+        animate={{ scale: 1, rotate: [0, 10, 0] }}
+        transition={{ type: 'spring', damping: 12, stiffness: 200 }}
+        className="w-20 h-20 rounded-full bg-forest mx-auto mb-5 flex items-center justify-center"
+      >
+        <Check className="w-10 h-10 text-white" strokeWidth={3} />
+      </motion.div>
+
+      <motion.div
+        initial={{ opacity: 0, y: 5 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2 }}
+      >
+        <h3 className="font-display text-2xl font-bold text-earth mb-2">
+          Sent successfully!
+        </h3>
+        <p className="text-earth/70 mb-1">
+          Your farm plan is on its way to
+        </p>
+        <p className="font-mono font-semibold text-forest mb-6">
+          {phone}
+        </p>
+      </motion.div>
+
+      <motion.button
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.5 }}
+        onClick={onClose}
+        className="px-7 py-3 rounded-full bg-forest text-white font-semibold hover:bg-forest-dark transition-colors"
+      >
+        Done
+      </motion.button>
+    </div>
+  )
+}
+
+function FarmPlan({ plan, profile, onSendWhatsApp }) {
   const [copied, setCopied] = useState(false)
 
   const handleCopy = () => {
@@ -480,6 +711,7 @@ function FarmPlan({ plan, profile }) {
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
+              onClick={onSendWhatsApp}
               className="flex-1 flex items-center justify-center gap-2 px-5 py-3.5 bg-forest text-white font-semibold rounded-full hover:bg-forest-dark transition-colors"
             >
               <MessageCircle className="w-4 h-4" />
@@ -597,4 +829,4 @@ function wait(ms) {
 function cap(s) {
   if (!s) return ''
   return s.charAt(0).toUpperCase() + s.slice(1)
-} 
+}
