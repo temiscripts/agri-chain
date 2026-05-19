@@ -2,10 +2,8 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
 /**
  * Maps our frontend form data to the exact shape Temi's API expects.
- * Drops fields the backend does not use (soilType, fertilizerType, etc.)
- * Converts farmSize from string to number.
  */
-function buildRequestBody(farmerProfile) {
+function buildRequestBody(farmerProfile, options = {}) {
   return {
     name: farmerProfile.name || 'Farmer',
     crop: farmerProfile.crop,
@@ -13,13 +11,12 @@ function buildRequestBody(farmerProfile) {
     lga: farmerProfile.lga,
     farmSize: Number(farmerProfile.farmSize) || 1,
     language: farmerProfile.language || 'english',
-    phoneNumber: farmerProfile.phoneNumber || null,
+    phoneNumber: options.phoneNumber || farmerProfile.phoneNumber || null,
   }
 }
 
 /**
- * Main orchestrator call. Sends the farmer profile, gets back
- * agent results + a synthesized farm plan.
+ * Main orchestrator call. Sends farmer profile, gets back agent results + plan.
  */
 export async function getFarmPlan(farmerProfile) {
   const body = buildRequestBody(farmerProfile)
@@ -39,22 +36,18 @@ export async function getFarmPlan(farmerProfile) {
 }
 
 /**
- * Send the farm plan to a WhatsApp number.
- * Returns the API response on success, throws on failure.
+ * Send to WhatsApp. Same endpoint as getFarmPlan but with a phoneNumber.
+ * Temi confirmed: the orchestrator handles WhatsApp delivery internally
+ * when a phoneNumber is present in the body.
  */
-export async function sendToWhatsApp({ phoneNumber, plan, language, requestId }) {
-  // Normalize phone to +234 format
+export async function sendToWhatsApp({ farmerProfile, phoneNumber }) {
   const normalized = normalizePhone(phoneNumber)
+  const body = buildRequestBody(farmerProfile, { phoneNumber: normalized })
 
-  const res = await fetch(`${API_URL}/api/whatsapp/send`, {
+  const res = await fetch(`${API_URL}/api/farm-plan`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      phoneNumber: normalized,
-      plan,
-      language: language || 'english',
-      requestId: requestId || null,
-    }),
+    body: JSON.stringify(body),
   })
 
   if (!res.ok) {
@@ -65,9 +58,6 @@ export async function sendToWhatsApp({ phoneNumber, plan, language, requestId })
   return res.json()
 }
 
-/**
- * Converts 08012345678 or +2348012345678 to +2348012345678
- */
 export function normalizePhone(num) {
   if (!num) return ''
   const cleaned = num.replace(/\s|-/g, '')
@@ -78,18 +68,12 @@ export function normalizePhone(num) {
   return cleaned
 }
 
-/**
- * Loose validator for Nigerian phone numbers.
- */
 export function isValidNigerianPhone(num) {
   if (!num) return false
   const cleaned = num.replace(/\s|-/g, '')
   return /^(0\d{10}|\+234\d{10})$/.test(cleaned)
 }
 
-/**
- * Quick reachability check.
- */
 export async function checkHealth() {
   try {
     const res = await fetch(`${API_URL}/health`)
@@ -99,11 +83,6 @@ export async function checkHealth() {
   }
 }
 
-/**
- * Maps an agent's raw API data into the structured shape the
- * AgentCard / AgentDetailModal components expect.
- * Returns { title, confidence: { label, level }, details: [{ label, value }] }
- */
 export function mapAgentResult(agentId, agentResult) {
   if (!agentResult || !agentResult.data) {
     return { title: 'No data available', details: [] }
@@ -207,10 +186,6 @@ export function mapAgentResult(agentId, agentResult) {
   }
 }
 
-/**
- * Maps the API farmPlan prose into the emoji+label+text array
- * the FarmPlan component renders.
- */
 export function mapFarmPlan(apiFarmPlan) {
   if (!apiFarmPlan) return []
 

@@ -4,18 +4,18 @@ import { useNavigate } from 'react-router-dom'
 import {
   Sprout, CloudRain, TrendingUp, Wallet, Bug, Check, ArrowLeft,
   MapPin, Leaf, Globe, MessageCircle, Copy, Sparkles,
-  Loader2, AlertCircle, Calendar, RefreshCw, Phone, X, Send
+  Loader2, AlertCircle, Calendar, RefreshCw, Phone, X, Send,
+  ChevronDown, ChevronUp
 } from 'lucide-react'
-import ReactMarkdown from 'react-markdown'
 import Background from './Background'
 import { getFarmPlan, mapAgentResult, mapFarmPlan, sendToWhatsApp, isValidNigerianPhone } from '../lib/api'
 
 const AGENT_META = [
-  { id: 'soil',    name: 'Soil & Crop Agent',   icon: Sprout,       task: 'Analyzing soil composition',  duration: 2400 },
-  { id: 'weather', name: 'Weather Agent',       icon: CloudRain,    task: 'Fetching 7 day forecast',     duration: 1800 },
-  { id: 'market',  name: 'Market Price Agent',  icon: TrendingUp,   task: 'Scanning regional markets',   duration: 3100 },
-  { id: 'finance', name: 'Finance Agent',       icon: Wallet,       task: 'Matching loan programmes',    duration: 2200 },
-  { id: 'pest',    name: 'Pest & Disease Agent',icon: Bug,          task: 'Scanning for crop threats',   duration: 2700 },
+  { id: 'soil',    name: 'Soil & Crop Agent',   icon: Sprout,    task: 'Analyzing soil composition', duration: 2400 },
+  { id: 'weather', name: 'Weather Agent',       icon: CloudRain, task: 'Fetching 7 day forecast',    duration: 1800 },
+  { id: 'market',  name: 'Market Price Agent',  icon: TrendingUp,task: 'Scanning regional markets',  duration: 3100 },
+  { id: 'finance', name: 'Finance Agent',       icon: Wallet,    task: 'Matching loan programmes',   duration: 2200 },
+  { id: 'pest',    name: 'Pest & Disease Agent',icon: Bug,       task: 'Scanning for crop threats',  duration: 2700 },
 ]
 
 export default function ResultsScreen() {
@@ -164,11 +164,8 @@ export default function ResultsScreen() {
         <AnimatePresence>
           {showWhatsApp && (
             <WhatsAppModal
-              defaultPhone={profile.phoneNumber}
-              defaultName={profile.name}
+              profile={profile}
               plan={plan}
-              language={profile.language}
-              requestId={apiData?.requestId}
               onClose={() => setShowWhatsApp(false)}
             />
           )}
@@ -178,9 +175,7 @@ export default function ResultsScreen() {
   )
 }
 
-// ─────────────────────────────────────────────
-// SUB COMPONENTS
-// ─────────────────────────────────────────────
+// ── SUB COMPONENTS ──────────────────────────────────────────────
 
 function ProfileBanner({ profile }) {
   return (
@@ -425,9 +420,9 @@ function AgentDetailModal({ agent, onClose }) {
 }
 
 // ── WHATSAPP MODAL ─────────────────────────────────────────────
-function WhatsAppModal({ defaultPhone, defaultName, plan, language, requestId, onClose }) {
-  const [phone, setPhone] = useState(defaultPhone || '')
-  const [status, setStatus] = useState('idle') // idle | sending | success | error
+function WhatsAppModal({ profile, plan, onClose }) {
+  const [phone, setPhone] = useState(profile.phoneNumber || '')
+  const [status, setStatus] = useState('idle')
   const [errorMessage, setErrorMessage] = useState('')
 
   const canSend = isValidNigerianPhone(phone) && status !== 'sending'
@@ -438,10 +433,8 @@ function WhatsAppModal({ defaultPhone, defaultName, plan, language, requestId, o
     setErrorMessage('')
     try {
       await sendToWhatsApp({
+        farmerProfile: profile,
         phoneNumber: phone,
-        plan,
-        language,
-        requestId,
       })
       setStatus('success')
     } catch (err) {
@@ -467,7 +460,6 @@ function WhatsAppModal({ defaultPhone, defaultName, plan, language, requestId, o
         onClick={(e) => e.stopPropagation()}
         className="bg-white rounded-3xl max-w-md w-full card-elevated overflow-hidden relative"
       >
-        {/* Close X */}
         {status !== 'sending' && (
           <button
             onClick={onClose}
@@ -478,7 +470,6 @@ function WhatsAppModal({ defaultPhone, defaultName, plan, language, requestId, o
           </button>
         )}
 
-        {/* Success state */}
         {status === 'success' ? (
           <SuccessView phone={phone} onClose={onClose} />
         ) : (
@@ -527,9 +518,9 @@ function WhatsAppModal({ defaultPhone, defaultName, plan, language, requestId, o
                   Enter a valid Nigerian phone number
                 </motion.div>
               )}
-              {defaultName && phone === defaultPhone && (
+              {profile.name && phone === profile.phoneNumber && (
                 <div className="mt-2 text-xs text-earth/60">
-                  This is {defaultName}'s number from the form.
+                  This is {profile.name}'s number from the form.
                 </div>
               )}
             </div>
@@ -542,7 +533,7 @@ function WhatsAppModal({ defaultPhone, defaultName, plan, language, requestId, o
                 {plan[0]?.text || 'Your weekly farm plan...'}
               </div>
               <div className="mt-2 text-xs text-earth/60">
-                + {plan.length - 1} more {plan.length - 1 === 1 ? 'section' : 'sections'} · in {cap(language)}
+                + {Math.max(0, plan.length - 1)} more {plan.length - 1 === 1 ? 'section' : 'sections'} in {cap(profile.language)}
               </div>
             </div>
 
@@ -635,6 +626,64 @@ function SuccessView({ phone, onClose }) {
       </motion.button>
     </div>
   )
+}
+
+// ── PLAN TEXT WITH MINI MARKDOWN PARSER ────────────────────────
+function PlanText({ text }) {
+  const [expanded, setExpanded] = useState(false)
+  if (!text || typeof text !== 'string') return null
+
+  // Step 1: clean up the worst markdown noise
+  let cleaned = text
+    .replace(/^\s*#{1,6}\s+/gm, '')        // strip # headers
+    .replace(/^\s*[-*]\s+/gm, '• ')        // convert bullets to dot
+    .replace(/\n{3,}/g, '\n\n')             // collapse triple newlines
+    .trim()
+
+  const isLong = cleaned.length > 280
+  const display = !expanded && isLong
+    ? cleaned.slice(0, 280).trimEnd() + '...'
+    : cleaned
+
+  return (
+    <div className="text-earth leading-relaxed">
+      {display.split('\n').map((line, i) => (
+        <p key={i} className={line.trim() ? 'mb-1.5 last:mb-0' : 'h-2'}>
+          {renderInline(line)}
+        </p>
+      ))}
+
+      {isLong && (
+        <button
+          onClick={() => setExpanded(!expanded)}
+          className="mt-2 text-xs font-semibold text-forest hover:text-forest-dark transition-colors inline-flex items-center gap-1"
+        >
+          {expanded ? (
+            <>Show less <ChevronUp className="w-3 h-3" /></>
+          ) : (
+            <>Show more <ChevronDown className="w-3 h-3" /></>
+          )}
+        </button>
+      )}
+    </div>
+  )
+}
+
+// Tiny inline markdown renderer for **bold** and *italic*
+function renderInline(text) {
+  if (!text) return null
+  // Split by **bold** segments
+  const parts = text.split(/(\*\*[^*]+\*\*)/g)
+  return parts.map((part, i) => {
+    if (part.startsWith('**') && part.endsWith('**')) {
+      return (
+        <strong key={i} className="font-semibold text-forest">
+          {part.slice(2, -2)}
+        </strong>
+      )
+    }
+    return <span key={i}>{part}</span>
+  })
 }
 
 function FarmPlan({ plan, profile, onSendWhatsApp }) {
@@ -830,4 +879,4 @@ function wait(ms) {
 function cap(s) {
   if (!s) return ''
   return s.charAt(0).toUpperCase() + s.slice(1)
-}
+} 
