@@ -4,8 +4,8 @@ A multi agent AI system that helps Nigerian smallholder farmers decide what to p
 
 **Submission:** DSN x BCT LLM Agent Challenge 3.0, Task B (Recommendation)
 
-**Live deployment:** https://gilded-salmiakki-9cfe3e.netlify.app
-**Backend API:** https://agri-chain-production.up.railway.app
+- **Live deployment:** https://gilded-salmiakki-9cfe3e.netlify.app
+- **Backend API:** https://agri-chain-production.up.railway.app
 
 ---
 
@@ -21,6 +21,7 @@ AgriChain bridges that gap. It takes a few simple inputs from the farmer and rep
 
 The system uses an orchestrator with five specialized agents working in parallel. Each agent owns one domain and returns structured output with a confidence level.
 
+```
 Farmer Input (web form or WhatsApp)
                               ↓
                      ┌─────────────────┐
@@ -43,6 +44,7 @@ Farmer Input (web form or WhatsApp)
               ┌───────────────┴───────────────┐
               ↓                               ↓
           Web Result                   WhatsApp Delivery
+```
 
 ### The Five Agents
 
@@ -88,7 +90,7 @@ The brief asks for a recommendation agent that goes beyond collaborative filteri
 
 ### Prerequisites
 
-You will need Node.js 18 or higher and npm. The backend requires an Anthropic API key.
+You will need Node.js 18 or higher and npm. The backend requires an Anthropic Claude API key for synthesis; WhatsApp delivery and the optional iSDA/Africa's Talking integrations are off by default if their keys are absent.
 
 ### Backend Setup
 
@@ -97,16 +99,22 @@ cd backend
 npm install
 
 # Create a .env file with the following keys
-echo "ANTHROPIC_API_KEY=your_key_here" >> .env
-echo "OPENWEATHER_API_KEY=your_key_here" >> .env
-echo "WHATSAPP_TOKEN=your_meta_token" >> .env
-echo "WHATSAPP_PHONE_ID=your_phone_id" >> .env
-echo "PORT=8000" >> .env
+cat > .env <<'EOF'
+CLAUDE_API_KEY=your_anthropic_key_here
+WHATSAPP_TOKEN=your_meta_whatsapp_token
+WHATSAPP_PHONE_NUMBER_ID=your_meta_phone_number_id
+WHATSAPP_VERIFY_TOKEN=any_string_you_choose
+ISDA_API_KEY=optional_isda_soil_key
+AT_API_KEY=optional_africas_talking_key
+AT_USERNAME=optional_africas_talking_username
+FRONTEND_URL=http://localhost:5173
+PORT=8000
+EOF
 
 npm start
 ```
 
-The backend will start on `http://localhost:8000`.
+The backend will start on `http://localhost:8000`. Weather data is fetched from the Open-Meteo API, which requires no key.
 
 ### Frontend Setup
 
@@ -189,25 +197,23 @@ Returns `{ "status": "healthy" }` if the server is reachable.
 5. Click "Send to WhatsApp" to deliver the plan to a Nigerian number
 
 ---
+
+## Repository Layout
+
+```
+agri-chain/
+├── backend/         Node.js + Express API, orchestrator, and the five agents
+│   ├── agents/      soilAgent, weatherAgent, marketAgent, financeAgent, pestAgent
+│   ├── orchestrator/  parallel dispatch + Claude synthesis
+│   ├── routes/      /api/farm-plan and /webhook/whatsapp
+│   └── server.js    Express entry point
+├── frontend/        React 18 + Vite + Tailwind web app (Netlify)
+├── agrichain/ai/    Experimental Python agent prototypes and tests
+└── README.md
+```
+
+---
+
 ## License
 
-This codebase is submitted for the DSN x BCT LLM Agent Challenge 3.0 and is intended for evaluation by the organizing judges. All third party APIs (Anthropic, Meta WhatsApp, Open Meteo) are used under their respective terms.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-          
+This codebase is submitted for the DSN x BCT LLM Agent Challenge 3.0 and is intended for evaluation by the organizing judges. All third party APIs (Anthropic, Meta WhatsApp, Open-Meteo) are used under their respective terms.
