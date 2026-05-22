@@ -30,10 +30,10 @@ const PROMPTS = {
     igbo: 'Aghọtara m! A na m emepụta atụmatụ ugbo {crop} maka {state}. Ọ na-ewe ihe dị ka sekọnd 20...',
   },
   followUp: {
-    english: '\n\n💬 You can ask follow-up questions like _"what pesticide should I use?"_ or _"what if rain comes late?"_\n\nOr reply *new plan* to start a new plan.',
-    hausa: '\n\n💬 Kana iya yin ƙarin tambayoyi kamar _"wane irin maganin kwari ya kamata in yi amfani da shi?"_ ko _"me ya kamata in yi idan ruwa ya makara?"_\n\nKo amsa *new plan* don fara sabon tsari.',
-    yoruba: '\n\n💬 O lè bi mí àwọn ìbéérè síwájú síi bíi _"oogun kòkòrò wo ni mo lè lò?"_ tàbí _"kí ni màá ṣe tí òjò bá pẹ́?"_\n\nTàbí dáhùn *new plan* láti bẹ̀rẹ̀ ètò tuntun.',
-    igbo: '\n\n💬 Ị nwere ike ịjụ ajụjụ ndị ọzọ dị ka _"kedu ọgwụ pesticide m ga-eji?"_ ma ọ bụ _"gịnị ka m ga-eme ma mmiri ozuzo ada nke ọma?"_\n\nMa ọ bụ zaa *new plan* iji malite atụmatụ ọhụrụ.',
+    english: '\n\n💬 Ask me anything about your plan:\n• _"more detail on pests"_\n• _"explain the weather"_\n• _"tell me more about finance"_\n• _"what if rain comes late?"_\n\nOr reply *new plan* to start over.',
+    hausa: '\n\n💬 Kana iya tambaya game da shirin ka:\n• _"ƙarin bayani game da kwari"_\n• _"faɗa mini game da kuɗi"_\n• _"me ya kamata in yi idan ruwa ya makara?"_\n\nKo amsa *new plan* don fara sabon tsari.',
+    yoruba: '\n\n💬 O lè bi mí nípa ètò rẹ:\n• _"alaye díẹ̀ síi nípa àwọn kòkòrò"_\n• _"ṣàlàyé ìsúnáwó"_\n• _"kí ni màá ṣe tí òjò bá pẹ́?"_\n\nTàbí dáhùn *new plan* láti bẹ̀rẹ̀ ètò tuntun.',
+    igbo: '\n\n💬 Jụọ m ihe ọ bụla gbasara atụmatụ gị:\n• _"nkọwa ndị ọzọ banyere ụdọ"_\n• _"kọọ m banyere ego"_\n• _"gịnị ka m ga-eme ma mmiri ozuzo ada nke ọma?"_\n\nMa ọ bụ zaa *new plan* iji malite ọhụrụ.',
   },
   invalidLanguage: {
     english: 'Please choose a language by replying with 1, 2, 3, 4 — or *english*, *hausa*, *yoruba*, *igbo*.',

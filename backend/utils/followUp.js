@@ -3,17 +3,30 @@ const { log, logError } = require('./logger')
 
 const client = process.env.CLAUDE_API_KEY ? new Anthropic({ apiKey: process.env.CLAUDE_API_KEY }) : null
 
-const SYSTEM_PROMPT = `You are AgriChain, a helpful agricultural advisor chatting with a Nigerian smallholder farmer over WhatsApp.
+const BASE_PROMPT = `You are AgriChain, a helpful agricultural advisor chatting with a Nigerian smallholder farmer over WhatsApp.
 
-The farmer has already received a full farm plan from you, and is now asking follow-up questions. Use the farm profile and agent data below as ground truth — do not invent figures.
+The farmer has already received a farm plan and is now asking follow-up questions. Use the farm profile and agent data below as ground truth — do not invent figures.
 
 Rules:
 - Always reply in the farmer's preferred language.
-- Be conversational and brief — 2 to 4 short paragraphs maximum.
-- Use practical, specific advice the farmer can act on this week.
-- Use *bold* (single asterisks) for emphasis. WhatsApp does not render markdown headers.
+- Use *bold* for emphasis. WhatsApp does not render markdown headers.
 - If the farmer asks something you cannot determine from the data, say so honestly and suggest who to ask (extension officer, cooperative, BoA branch).
-- Never make up prices, loan amounts, or pest names — use only what the data shows.`
+- Never make up prices, loan amounts, or pest names — only use what the data shows.`
+
+const BRIEF_RULES = `- Be conversational and brief — 2 to 4 short paragraphs maximum.`
+
+const DETAIL_RULES = `- The farmer has asked for more detail on a specific section. Give a thorough, structured response of 5 to 8 sentences covering that topic fully. Include specific actions, quantities, timing, and named resources where the data supports it.`
+
+const DETAIL_KEYWORDS = [
+  'more detail', 'more details', 'tell me more', 'explain more', 'explain further',
+  'more about', 'elaborate', 'give me more', 'what else', 'expand',
+  'in detail', 'detailed', 'full explanation',
+]
+
+function isDetailRequest(text) {
+  const lower = text.toLowerCase()
+  return DETAIL_KEYWORDS.some(k => lower.includes(k))
+}
 
 async function answerFollowUp({ session, question, requestId }) {
   if (!client) {
@@ -21,27 +34,29 @@ async function answerFollowUp({ session, question, requestId }) {
   }
 
   const { profile, agentResults, farmPlan, history = [] } = session
+  const detailed = isDetailRequest(question)
 
+  const systemPrompt = `${BASE_PROMPT}\n${detailed ? DETAIL_RULES : BRIEF_RULES}`
   const contextBlock = buildContextBlock(profile, agentResults, farmPlan)
   const messages = [
     ...history.slice(-6),
     { role: 'user', content: question },
   ]
 
-  log('followUp', requestId, `Calling Claude for follow-up — historyLen=${history.length}`)
+  log('followUp', requestId, `Calling Claude — detailed=${detailed} historyLen=${history.length}`)
 
   try {
     const response = await client.messages.create({
       model: 'claude-sonnet-4-6',
-      max_tokens: 600,
+      max_tokens: detailed ? 1200 : 600,
       system: [
-        { type: 'text', text: SYSTEM_PROMPT, cache_control: { type: 'ephemeral' } },
+        { type: 'text', text: systemPrompt, cache_control: { type: 'ephemeral' } },
         { type: 'text', text: contextBlock },
       ],
       messages,
     })
     const answer = response.content[0].text.trim()
-    log('followUp', requestId, `Follow-up SUCCESS input_tokens=${response.usage.input_tokens} output_tokens=${response.usage.output_tokens}`)
+    log('followUp', requestId, `Follow-up SUCCESS tokens=${response.usage.output_tokens} detailed=${detailed}`)
     return answer
   } catch (err) {
     logError('followUp', requestId, `Claude follow-up failed: ${err.message}`)
@@ -66,7 +81,7 @@ Market data: ${stringify(market?.data)}
 Finance data: ${stringify(finance?.data)}
 Pest data: ${stringify(pest?.data)}
 
-This week's plan that was already sent to the farmer:
+Farm plan already sent to the farmer:
 ${stringify(farmPlan)}`
 }
 
