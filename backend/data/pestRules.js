@@ -1,6 +1,3 @@
-// Each rule: conditions checked against weather summary from weatherAgent.
-// trigger(w) receives { avgTemp, avgHumidity, totalRainfall } over the 7-day forecast.
-
 module.exports = {
   rice: [
     {

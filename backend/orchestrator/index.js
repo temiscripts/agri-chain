@@ -10,13 +10,11 @@ const { log, logError } = require('../utils/logger')
 async function orchestrate(input, requestId) {
   const { state, lga, crop, farmSize, language } = input
 
-  // Step 1: resolve coordinates
   log('orchestrator', requestId, `Geocoding ${lga}, ${state}`)
   const coords = await geocode(state, lga, requestId)
   const { lat, lon } = coords
   log('orchestrator', requestId, `Coordinates resolved lat=${lat} lon=${lon} via ${coords.source}`)
 
-  // Step 2: dispatch all 5 agents in parallel
   log('orchestrator', requestId, 'Dispatching 5 agents in parallel')
   const [soilRes, weatherRes, marketRes, financeRes] = await Promise.allSettled([
     soilAgent({ lat, lon, crop, state }, requestId),
@@ -30,7 +28,6 @@ async function orchestrate(input, requestId) {
   const market = extractResult(marketRes, 'marketAgent', requestId)
   const finance = extractResult(financeRes, 'financeAgent', requestId)
 
-  // Step 3: pest agent depends on weather data — run after weather resolves
   const pestRes = await pestAgent(
     { crop, weatherData: weather?.data },
     requestId
@@ -42,7 +39,6 @@ async function orchestrate(input, requestId) {
   const agentResults = { soil, weather, market, finance, pest: pestRes }
   log('orchestrator', requestId, 'All agents complete — calling synthesis')
 
-  // Step 4: synthesize with Claude — falls back to template if API key not set
   const claudePlan = await synthesize({ farmerInput: input, agentResults, requestId })
   const farmPlan = claudePlan || buildTemplatePlan(agentResults, input)
 
@@ -55,7 +51,6 @@ function extractResult(settled, agentName, requestId) {
   return { data: null, confidence: 'low', confidenceReason: `${agentName} failed`, error: settled.reason?.message }
 }
 
-// Basic template plan when ML synthesis endpoint is unavailable
 function buildTemplatePlan(agentResults, input) {
   const { soil, weather, market, finance, pest } = agentResults
   const { crop, state, language } = input

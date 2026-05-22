@@ -1,6 +1,3 @@
-// Pre-cached demo profiles for instant demo-day results.
-// Bypass live API calls — responses are pre-built.
-
 const PROFILES = {
   chukwuemeka: {
     input: { state: 'Kebbi', lga: 'Birnin Kebbi', crop: 'rice', farmSize: 2, language: 'hausa', phoneNumber: null },
@@ -16,7 +13,6 @@ const PROFILES = {
   },
 }
 
-// Pre-built agent results for each demo profile
 const DEMO_RESULTS = {
   chukwuemeka: {
     soil: {

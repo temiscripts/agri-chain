@@ -5,7 +5,6 @@ const { log, logError } = require('../utils/logger')
 const ISDA_BASE = 'https://api.isda-africa.com/v1/soilproperty'
 const PROPERTIES = ['ph', 'nitrogen', 'texture', 'organic_carbon']
 
-// Approximate state-level soil fallback for Nigeria
 const STATE_SOIL_FALLBACK = {
   default: { ph: 6.2, nitrogen: 'medium', texture: 'loamy', organicCarbon: 1.5 },
   Kebbi:    { ph: 6.0, nitrogen: 'medium', texture: 'sandy-loam', organicCarbon: 1.2 },

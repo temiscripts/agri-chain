@@ -2,8 +2,6 @@ const axios = require('axios')
 const { log, logError } = require('./logger')
 const STATE_CENTROIDS = require('../data/stateCentroids')
 
-// Try to resolve LGA name to coordinates via Open-Meteo geocoding.
-// Falls back to state centroid if LGA not found.
 async function geocode(state, lga, requestId) {
   const query = lga ? `${lga}, ${state}, Nigeria` : `${state}, Nigeria`
 
@@ -27,7 +25,6 @@ async function geocode(state, lga, requestId) {
     logError('geocoder', requestId, `Geocoding API failed: ${err.message}`)
   }
 
-  // Fallback to state centroid
   const normalized = Object.keys(STATE_CENTROIDS).find(
     (k) => k.toLowerCase() === state.toLowerCase()
   )

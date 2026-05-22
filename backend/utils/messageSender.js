@@ -1,8 +1,6 @@
 const axios = require('axios')
 const { log, logError } = require('./logger')
 
-// ── WhatsApp ──────────────────────────────────────────────────────────────────
-
 const WA_MAX_LENGTH = 4000
 
 function splitMessage(message) {
@@ -20,7 +18,6 @@ function splitMessage(message) {
 }
 
 function normalisePhone(phoneNumber) {
-  // WhatsApp API requires numbers without leading +
   return String(phoneNumber).replace(/^\+/, '')
 }
 
@@ -53,8 +50,6 @@ async function sendWhatsApp(phoneNumber, message, requestId) {
   }
 }
 
-// ── SMS fallback via Africa's Talking ────────────────────────────────────────
-
 async function sendSMS(phoneNumber, message, requestId) {
   const apiKey = process.env.AT_API_KEY
   const username = process.env.AT_USERNAME
@@ -83,8 +78,6 @@ async function sendSMS(phoneNumber, message, requestId) {
   }
 }
 
-// ── Dispatch: WhatsApp first, SMS fallback ────────────────────────────────────
-
 async function sendPlan(phoneNumber, planText, requestId) {
   if (!phoneNumber) return { sent: false, reason: 'no-phone-number' }
 
@@ -95,13 +88,10 @@ async function sendPlan(phoneNumber, planText, requestId) {
   return sendSMS(phoneNumber, planText, requestId)
 }
 
-// ── Format farm plan as readable message ─────────────────────────────────────
-
 function formatPlanAsMessage(farmPlan, profile) {
   const header = `*AgriChain Farm Plan* — ${profile.crop} · ${profile.state}`
   const footer = '_Reply with your crop, state, and farm size to get a new plan anytime._'
 
-  // ML service returns plain text in _raw — send it directly
   if (farmPlan._raw) {
     return `${header}\n\n${farmPlan._raw}\n\n${footer}`
   }

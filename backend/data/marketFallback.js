@@ -1,8 +1,3 @@
-// Approximate Nigerian market prices (Naira) — updated May 2025.
-// Used when the WFP live API is unavailable.
-// Prices are per standard unit: rice/maize/sorghum/millet/cowpea/beans/groundnut = per 50kg bag,
-// cassava = per tonne, yam = per 100-tuber heap, tomato = per 50kg crate.
-
 const PRICES = {
   rice:      { unit: '50kg bag',      min: 38000, max: 48000, bestMarkets: ['Kano', 'Lagos', 'Onitsha'] },
   maize:     { unit: '100kg bag',     min: 28000, max: 38000, bestMarkets: ['Kano', 'Ibadan', 'Kaduna'] },

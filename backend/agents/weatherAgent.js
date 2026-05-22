@@ -95,7 +95,6 @@ function pickBestPlantingDay(d) {
   d.time.forEach((date, i) => {
     const rain = d.precipitation_sum[i] || 0
     const humidity = d.relative_humidity_2m_max[i] || 70
-    // Best day: light rain (2–15mm), moderate humidity
     const score = Math.abs(rain - 8) + Math.abs(humidity - 70) * 0.1
     if (score < bestScore) {
       bestScore = score

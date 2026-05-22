@@ -8,7 +8,6 @@ const { generateRequestId } = require('../utils/requestId')
 const { log, logError } = require('../utils/logger')
 const { PROFILES, DEMO_RESULTS } = require('../data/demoProfiles')
 
-// POST /api/farm-plan — main endpoint
 router.post('/farm-plan', standard, async (req, res) => {
   const requestId = generateRequestId()
   log('farmPlan', requestId, `Incoming request from ${req.ip}`)
@@ -56,7 +55,6 @@ router.post('/farm-plan', standard, async (req, res) => {
   }
 })
 
-// GET /api/demo/:profile — instant pre-cached results for demo day
 router.get('/demo/:profile', async (req, res) => {
   const requestId = generateRequestId()
   const profileName = req.params.profile.toLowerCase()
@@ -91,7 +89,6 @@ router.get('/demo/:profile', async (req, res) => {
   })
 })
 
-// GET /api/supported — reference data for frontend
 router.get('/supported', (req, res) => {
   const { SUPPORTED_CROPS, NIGERIAN_STATES } = require('../middleware/validator')
   res.json({

@@ -27,7 +27,6 @@ Output valid JSON only with these exact keys:
 async function synthesize({ farmerInput, agentResults, requestId }) {
   const { name, state, lga, crop, farmSize, language } = farmerInput
 
-  // Primary: ML guy's service
   log('synthesis', requestId, `Calling ML service language=${language}`)
   try {
     const response = await axios.post(
@@ -64,7 +63,6 @@ async function synthesize({ farmerInput, agentResults, requestId }) {
     logError('synthesis', requestId, `ML service failed: ${err.message} — falling back to Claude`)
   }
 
-  // Fallback: Claude with tuned prompt
   if (!claude) {
     log('synthesis', requestId, 'CLAUDE_API_KEY not set — skipping Claude fallback')
     return null

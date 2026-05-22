@@ -9,7 +9,6 @@ const store = require('../utils/conversationStore')
 const flow = require('../utils/conversationFlow')
 const { answerFollowUp } = require('../utils/followUp')
 
-// GET /webhook/whatsapp — Meta webhook verification
 router.get('/whatsapp', (req, res) => {
   const mode = req.query['hub.mode']
   const token = req.query['hub.verify_token']
@@ -23,7 +22,6 @@ router.get('/whatsapp', (req, res) => {
   return res.sendStatus(403)
 })
 
-// POST /webhook/whatsapp — receive inbound messages from farmers
 router.post('/whatsapp', webhook, async (req, res) => {
   res.sendStatus(200)
 
